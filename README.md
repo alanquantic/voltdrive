@@ -47,4 +47,25 @@ git push -u origin main
 - Si agregas galerías locales, colócalas en `public/assets/models/<modelo>/gallery-01.webp` (y actualiza `MODELS.*.gallery` en `src/app.jsx`).
 - `public/assets/home/home-hero-01.webp` es opcional como póster del video.
 
+---
+
+### Workflow de cambios (resumen)
+1) Desarrollo local
+   - `npm install`
+   - `npm run build` y `npm start`
+   - Abrir `http://localhost:3000`
+2) Assets
+   - Héroes: `public/assets/models/<modelo>/hero.webp`
+   - Galería: `public/assets/models/<modelo>/gallery-0X.webp` (actualizar `src/app.jsx`)
+3) Verificación rápida
+   - Navegación por hash: `#/aurora`, `#/halcon`, `#/faq`, `#configurador`
+   - Imágenes 200 OK: `curl -I http://localhost:3000/assets/models/aurora/hero.webp`
+4) Commit y push
+   - `git add -A && git commit -m "feat/fix: ..." && git push`
+5) Deploy en Vercel (Opción A)
+   - Build Command: `npm run build`
+   - Output Directory: `public`
+
+Más detalle y checklist en `docs/RELEASE.md`.
+
 

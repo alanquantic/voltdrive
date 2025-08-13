@@ -6,4 +6,5 @@ dist/
 *.tmp
 coverage/
 public/bundle.js.map
+.env
 

@@ -571,6 +571,7 @@ function AdvancedConfigurator() {
   const [roof, setRoof] = useState('Estándar');
   const [packages, setPackages] = useState([]);
   const [selected, setSelected] = useState([]);
+  const [form, setForm] = useState({ name: '', email: '', phone: '', type: 'Compra', units: '1', city: '', country: 'México' });
 
   const modelData = useMemo(() => MODELS[model], [model]);
   useEffect(() => {
@@ -705,7 +706,30 @@ function AdvancedConfigurator() {
                 {packages.map(p => (<Pill key={p}><Icon path="M20 6L9 17l-5-5" className="text-emerald-300"/> {p}</Pill>))}
               </div>
               <div className="mt-5 flex flex-wrap gap-3">
-                <button className="group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300">
+                <button
+                  onClick={async ()=>{
+                    const payload = {
+                      customer: form,
+                      configuration: {
+                        model,
+                        version,
+                        color,
+                        seats,
+                        roof,
+                        packages,
+                        selectedAccessories: selected,
+                      }
+                    };
+                    try {
+                      const r = await fetch('/api/quote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                      if (!r.ok) throw new Error('Solicitud fallida');
+                      alert('Solicitud enviada. Te contactaremos pronto.');
+                    } catch (e) {
+                      alert('No se pudo enviar la solicitud. Inténtalo más tarde.');
+                    }
+                  }}
+                  className="group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300"
+                >
                   Solicitar cotización <IChevron className="transition group-hover:translate-x-0.5"/>
                 </button>
               </div>
@@ -714,7 +738,43 @@ function AdvancedConfigurator() {
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white/80 backdrop-blur">
-            <p className="text-xs">Aviso: Las especificaciones y equipamientos pueden variar por lote. Autonomía sujeta a condiciones de manejo.</p>
+            <p className="text-xs">Completa tus datos para enviar la cotización:</p>
+            <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div>
+                <label className="block text-xs text-white/60">Nombre y Apellidos</label>
+                <input value={form.name} onChange={(e)=>setForm({ ...form, name: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" placeholder="Tu nombre"/>
+              </div>
+              <div>
+                <label className="block text-xs text-white/60">Email</label>
+                <input type="email" value={form.email} onChange={(e)=>setForm({ ...form, email: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" placeholder="correo@dominio.com"/>
+              </div>
+              <div>
+                <label className="block text-xs text-white/60">Teléfono / WhatsApp</label>
+                <input type="tel" value={form.phone} onChange={(e)=>setForm({ ...form, phone: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" placeholder="+52 ..."/>
+              </div>
+              <div>
+                <label className="block text-xs text-white/60">Intención</label>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {['Compra','Renta','Leasing'].map((t)=> (
+                    <button key={t} type="button" onClick={()=>setForm({ ...form, type: t })} className={`rounded-full px-3 py-2 text-sm ${form.type===t? 'bg-emerald-400 text-emerald-950' : 'bg-white/10 text-white'}`}>{t}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs text-white/60">Unidades</label>
+                <input type="number" min="1" value={form.units} onChange={(e)=>setForm({ ...form, units: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none"/>
+              </div>
+              <div>
+                <label className="block text-xs text-white/60">Ciudad</label>
+                <input value={form.city} onChange={(e)=>setForm({ ...form, city: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" placeholder="Ciudad"/>
+              </div>
+              <div>
+                <label className="block text-xs text-white/60">País</label>
+                <select value={form.country} onChange={(e)=>setForm({ ...form, country: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none">
+                  {['México','Panamá','Costa Rica'].map((c)=> (<option key={c} value={c}>{c}</option>))}
+                </select>
+              </div>
+            </div>
           </div>
         </div>
       </div>

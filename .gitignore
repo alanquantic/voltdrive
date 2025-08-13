@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+.vercel/
+dist/
+*.log
+*.tmp
+coverage/
+public/bundle.js.map
+

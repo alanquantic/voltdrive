@@ -706,79 +706,116 @@ function AdvancedConfigurator() {
                 {packages.map(p => (<Pill key={p}><Icon path="M20 6L9 17l-5-5" className="text-emerald-300"/> {p}</Pill>))}
               </div>
               <div className="mt-5 flex flex-wrap gap-3">
-                <button
-                  onClick={async ()=>{
-                    const payload = {
-                      customer: form,
-                      configuration: {
-                        model,
-                        version,
-                        color,
-                        seats,
-                        roof,
-                        packages,
-                        selectedAccessories: selected,
-                      }
-                    };
-                    try {
-                      const r = await fetch('/api/quote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                      if (!r.ok) throw new Error('Solicitud fallida');
-                      alert('Solicitud enviada. Te contactaremos pronto.');
-                    } catch (e) {
-                      alert('No se pudo enviar la solicitud. Inténtalo más tarde.');
-                    }
-                  }}
-                  className="group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300"
-                >
-                  Solicitar cotización <IChevron className="transition group-hover:translate-x-0.5"/>
-                </button>
+                <QuoteModalTrigger
+                  form={form}
+                  setForm={setForm}
+                  configuration={{ model, version, color, seats, roof, packages, selectedAccessories: selected }}
+                />
               </div>
               <p className="mt-3 text-xs text-white/60">Accesorios seleccionados: <span className="text-white">{selected.length}</span>. Los precios se comparten solo en cotización.</p>
             </div>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white/80 backdrop-blur">
-            <p className="text-xs">Completa tus datos para enviar la cotización:</p>
-            <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-              <div>
-                <label className="block text-xs text-white/60">Nombre y Apellidos</label>
-                <input value={form.name} onChange={(e)=>setForm({ ...form, name: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" placeholder="Tu nombre"/>
-              </div>
-              <div>
-                <label className="block text-xs text-white/60">Email</label>
-                <input type="email" value={form.email} onChange={(e)=>setForm({ ...form, email: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" placeholder="correo@dominio.com"/>
-              </div>
-              <div>
-                <label className="block text-xs text-white/60">Teléfono / WhatsApp</label>
-                <input type="tel" value={form.phone} onChange={(e)=>setForm({ ...form, phone: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" placeholder="+52 ..."/>
-              </div>
-              <div>
-                <label className="block text-xs text-white/60">Intención</label>
-                <div className="mt-1 flex flex-wrap gap-2">
-                  {['Compra','Renta','Leasing'].map((t)=> (
-                    <button key={t} type="button" onClick={()=>setForm({ ...form, type: t })} className={`rounded-full px-3 py-2 text-sm ${form.type===t? 'bg-emerald-400 text-emerald-950' : 'bg-white/10 text-white'}`}>{t}</button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs text-white/60">Unidades</label>
-                <input type="number" min="1" value={form.units} onChange={(e)=>setForm({ ...form, units: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none"/>
-              </div>
-              <div>
-                <label className="block text-xs text-white/60">Ciudad</label>
-                <input value={form.city} onChange={(e)=>setForm({ ...form, city: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" placeholder="Ciudad"/>
-              </div>
-              <div>
-                <label className="block text-xs text-white/60">País</label>
-                <select value={form.country} onChange={(e)=>setForm({ ...form, country: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none">
-                  {['México','Panamá','Costa Rica'].map((c)=> (<option key={c} value={c}>{c}</option>))}
-                </select>
-              </div>
-            </div>
+            <p className="text-xs">Aviso: Las especificaciones y equipamientos pueden variar por lote. Autonomía sujeta a condiciones de manejo.</p>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function QuoteModalTrigger({ form, setForm, configuration }){
+  const [open, setOpen] = useState(false);
+  const [sending, setSending] = useState(false);
+
+  const invalid = !form.name || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email||'') || !form.phone || !form.city;
+
+  async function submit(){
+    if (invalid) return;
+    setSending(true);
+    try {
+      const r = await fetch('/api/quote', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ customer: form, configuration }) });
+      if (!r.ok) throw new Error('Solicitud fallida');
+      setOpen(false);
+      alert('Solicitud enviada. Te contactaremos pronto.');
+    } catch(e){
+      alert('No se pudo enviar la solicitud. Inténtalo más tarde.');
+    } finally { setSending(false); }
+  }
+
+  return (
+    <>
+      <button onClick={()=>setOpen(true)} className="group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300">
+        Solicitar cotización <IChevron className="transition group-hover:translate-x-0.5"/>
+      </button>
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60" onClick={()=>!sending && setOpen(false)}></div>
+          <div className="relative z-10 w-full max-w-2xl rounded-3xl border border-white/10 bg-black/80 p-6 text-white backdrop-blur">
+            <h3 className="text-xl font-semibold">Resumen y datos para cotización</h3>
+            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="rounded-2xl border border-white/10 p-4">
+                <div className="text-sm text-white/60">Resumen</div>
+                <div className="mt-2 space-y-1 text-sm">
+                  {Object.entries({
+                    Modelo: configuration.model,
+                    Versión: configuration.version,
+                    Color: configuration.color,
+                    'Color de Asientos': configuration.seats,
+                    Techo: configuration.roof,
+                    Paquetes: (configuration.packages||[]).join(', ') || '—',
+                    Accesorios: (configuration.selectedAccessories||[]).join(', ') || '—'
+                  }).map(([k,v]) => (<div key={k}><span className="text-white/60">{k}: </span><span className="text-white">{v}</span></div>))}
+                </div>
+              </div>
+              <div className="rounded-2xl border border-white/10 p-4">
+                <div className="grid grid-cols-1 gap-2 text-sm">
+                  <div>
+                    <label className="block text-white/60">Nombre y Apellidos</label>
+                    <input value={form.name} onChange={(e)=>setForm({ ...form, name: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none"/>
+                  </div>
+                  <div>
+                    <label className="block text-white/60">Email</label>
+                    <input type="email" value={form.email} onChange={(e)=>setForm({ ...form, email: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none"/>
+                  </div>
+                  <div>
+                    <label className="block text-white/60">Teléfono / WhatsApp</label>
+                    <input value={form.phone} onChange={(e)=>setForm({ ...form, phone: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none"/>
+                  </div>
+                  <div>
+                    <label className="block text-white/60">Intención</label>
+                    <div className="mt-1 flex gap-2">
+                      {['Compra','Renta','Leasing'].map(t => (
+                        <button key={t} type="button" onClick={()=>setForm({ ...form, type: t })} className={`rounded-full px-3 py-1.5 ${form.type===t?'bg-emerald-400 text-emerald-950':'bg-white/10 text-white'}`}>{t}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-white/60">Unidades</label>
+                    <input type="number" min="1" value={form.units} onChange={(e)=>setForm({ ...form, units: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none"/>
+                  </div>
+                  <div>
+                    <label className="block text-white/60">Ciudad</label>
+                    <input value={form.city} onChange={(e)=>setForm({ ...form, city: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none"/>
+                  </div>
+                  <div>
+                    <label className="block text-white/60">País</label>
+                    <select value={form.country} onChange={(e)=>setForm({ ...form, country: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none">
+                      {['México','Panamá','Costa Rica'].map(c => (<option key={c} value={c}>{c}</option>))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 flex items-center justify-end gap-3">
+              <button disabled={sending} onClick={()=>setOpen(false)} className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-white/90 backdrop-blur hover:bg-white/10">Cancelar</button>
+              <button disabled={sending||invalid} onClick={submit} className={`rounded-full px-5 py-2 font-medium ${sending||invalid? 'bg-emerald-400/50 text-emerald-950/80' : 'bg-emerald-400 text-emerald-950 hover:bg-emerald-300'}`}>{sending? 'Enviando…' : 'Enviar cotización'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 

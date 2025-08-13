@@ -948,9 +948,9 @@ function HomePage() {
               </div>
               <h3 className="text-lg font-semibold text-white">{u.title}</h3>
               <p className="mt-1 text-white/70">{u.text}</p>
-              <button className="mt-4 inline-flex items-center gap-2 text-sm text-emerald-300">
+              <a href="#contacto" className="mt-4 inline-flex items-center gap-2 text-sm text-emerald-300 hover:text-emerald-200" aria-label={`Solicitar propuesta para ${u.title}`}>
                 Solicitar propuesta <IChevron/>
-              </button>
+              </a>
             </div>
           ))}
         </div>

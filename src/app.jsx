@@ -571,7 +571,7 @@ function AdvancedConfigurator() {
   const [roof, setRoof] = useState('Estándar');
   const [packages, setPackages] = useState([]);
   const [selected, setSelected] = useState([]);
-  const [form, setForm] = useState({ name: '', email: '', phone: '', type: 'Compra', units: '1', city: '', country: 'México' });
+  const [form, setForm] = useState({ name:'', email:'', phone:'', type:'Compra', units:'1', city:'', country:'México' });
 
   const modelData = useMemo(() => MODELS[model], [model]);
   useEffect(() => {
@@ -584,8 +584,19 @@ function AdvancedConfigurator() {
   const seatHex = SEAT_HEX[seats] || '#1f2937';
   const previewImg = modelData?.hero;
 
+  // Estado sticky CTA en móvil
+  const stickyCta = (
+    <div className="fixed inset-x-0 bottom-0 z-40 bg-black/70 p-3 backdrop-blur md:hidden">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
+        <div className="text-xs text-white/70 truncate">{modelData?.name} • {color || '—'} • {seats || '—'}</div>
+        <QuoteModalTrigger form={form} setForm={setForm} configuration={{ model, version, color, seats, roof, packages, selectedAccessories: selected }} />
+      </div>
+    </div>
+  );
+
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      {stickyCta}
       <div className="lg:col-span-7">
         <div className="space-y-6 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
           <h3 className="text-xl font-semibold text-white">Selecciona tu configuración</h3>
@@ -710,7 +721,13 @@ function AdvancedConfigurator() {
                   form={form}
                   setForm={setForm}
                   configuration={{ model, version, color, seats, roof, packages, selectedAccessories: selected }}
+                  label="Enviar cotización"
                 />
+                <button onClick={()=>{
+                  const params = new URLSearchParams({ model, color, seats }).toString();
+                  const shareUrl = `${window.location.origin}${window.location.pathname}#/${model}?${params}`;
+                  navigator.clipboard.writeText(shareUrl).then(()=> showToast('Configuración copiada'));
+                }} className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-white/90 backdrop-blur hover:bg-white/10">Compartir configuración</button>
               </div>
               <p className="mt-3 text-xs text-white/60">Accesorios seleccionados: <span className="text-white">{selected.length}</span>. Los precios se comparten solo en cotización.</p>
             </div>
@@ -745,9 +762,9 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
       const r = await fetch('/api/quote', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ customer: form, configuration }) });
       if (!r.ok) throw new Error('Solicitud fallida');
       setOpen(false);
-      alert('Solicitud enviada. Te contactaremos pronto.');
+      showToast('Solicitud enviada. Te contactaremos pronto.');
     } catch(e){
-      alert('No se pudo enviar la solicitud. Inténtalo más tarde.');
+      showToast('No se pudo enviar la solicitud. Inténtalo más tarde.');
     } finally { setSending(false); }
   }
 
@@ -757,10 +774,10 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
         {label} <IChevron className="transition group-hover:translate-x-0.5"/>
       </button>
       {open && createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="quote-title">
           <div className="absolute inset-0 bg-black/60" onClick={()=>!sending && setOpen(false)}></div>
-          <div className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-white/10 bg-black/80 p-6 text-white backdrop-blur">
-            <h3 className="text-xl font-semibold">Resumen y datos para cotización</h3>
+          <div className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-white/10 bg-black/80 p-6 text-white backdrop-blur" tabIndex={-1}>
+            <h3 id="quote-title" className="text-xl font-semibold">Resumen y datos para cotización</h3>
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="rounded-2xl border border-white/10 p-4">
                 <div className="text-sm text-white/60">Resumen</div>
@@ -780,15 +797,18 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
                 <div className="grid grid-cols-1 gap-2 text-sm">
                   <div>
                     <label className="block text-white/60">Nombre y Apellidos</label>
-                    <input value={form.name} onChange={(e)=>setForm({ ...form, name: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none"/>
+                    <input autoFocus value={form.name} onChange={(e)=>setForm({ ...form, name: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none focus:ring-2 focus:ring-emerald-400"/>
+                    {!form.name && (<div className="mt-1 text-xs text-rose-300">Campo requerido</div>)}
                   </div>
                   <div>
                     <label className="block text-white/60">Email</label>
-                    <input type="email" value={form.email} onChange={(e)=>setForm({ ...form, email: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none"/>
+                    <input type="email" value={form.email} onChange={(e)=>setForm({ ...form, email: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none focus:ring-2 focus:ring-emerald-400"/>
+                    {form.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email) && (<div className="mt-1 text-xs text-rose-300">Email inválido</div>)}
                   </div>
                   <div>
                     <label className="block text-white/60">Teléfono / WhatsApp</label>
-                    <input value={form.phone} onChange={(e)=>setForm({ ...form, phone: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none"/>
+                    <input value={form.phone} onChange={(e)=>setForm({ ...form, phone: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none focus:ring-2 focus:ring-emerald-400"/>
+                    {!form.phone && (<div className="mt-1 text-xs text-rose-300">Campo requerido</div>)}
                   </div>
                   <div>
                     <label className="block text-white/60">Intención</label>
@@ -800,11 +820,12 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
                   </div>
                   <div>
                     <label className="block text-white/60">Unidades</label>
-                    <input type="number" min="1" value={form.units} onChange={(e)=>setForm({ ...form, units: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none"/>
+                    <input type="number" min="1" value={form.units} onChange={(e)=>setForm({ ...form, units: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none focus:ring-2 focus:ring-emerald-400"/>
                   </div>
                   <div>
                     <label className="block text-white/60">Ciudad</label>
-                    <input value={form.city} onChange={(e)=>setForm({ ...form, city: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none"/>
+                    <input value={form.city} onChange={(e)=>setForm({ ...form, city: e.target.value })} className="mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none focus:ring-2 focus:ring-emerald-400"/>
+                    {!form.city && (<div className="mt-1 text-xs text-rose-300">Campo requerido</div>)}
                   </div>
                   <div>
                     <label className="block text-white/60">País</label>
@@ -1256,7 +1277,7 @@ function ProductMeta({ m }){
     <div className="mt-6 max-w-2xl text-white/80">
       <p>{resumen}</p>
       <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
-        <span className="text-white/50">Compartir:</span>
+        <span className="text-white/60">Compartir:</span>
         <a href={waHref} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-3 py-1 hover:bg-white/10"><IWhats/> WhatsApp</a>
         <a href={mailHref} className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-3 py-1 hover:bg-white/10"><IMail/> Correo</a>
         <button onClick={copyLink} className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-3 py-1 hover:bg-white/10"><ILink/> Copiar enlace</button>
@@ -1266,6 +1287,25 @@ function ProductMeta({ m }){
       </div>
     </div>
   );
+}
+
+// Simple toast (no dependencia externa)
+function showToast(message){
+  if (typeof document === 'undefined') return;
+  const el = document.createElement('div');
+  el.textContent = message;
+  el.style.position = 'fixed';
+  el.style.bottom = '20px';
+  el.style.left = '50%';
+  el.style.transform = 'translateX(-50%)';
+  el.style.background = 'rgba(16,185,129,.95)';
+  el.style.color = '#052e1a';
+  el.style.padding = '10px 14px';
+  el.style.borderRadius = '9999px';
+  el.style.fontWeight = '600';
+  el.style.zIndex = '9999';
+  document.body.appendChild(el);
+  setTimeout(()=>{ el.style.transition = 'opacity .3s'; el.style.opacity = '0'; setTimeout(()=> el.remove(), 300); }, 1800);
 }
 
 // ---------------- Router hash -------------------------------------------

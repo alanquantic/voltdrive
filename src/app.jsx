@@ -301,7 +301,7 @@ function FAQPage() {
 
 // ---------------- Datos & Model Pages -----------------------------------
 const COLOR_HEX = { Blanco: '#f5f5f5', Azul: '#2563eb', Negro: '#0f172a', Gris: '#9ca3af', Rojo: '#ef4444' };
-const SEAT_HEX  = { Beige: '#e9dfcf', Negro: '#1f2937', Naranja: '#f97316', 'Marrón toffee': '#b7791f' };
+const SEAT_HEX  = { Beige: '#e9dfcf', Negro: '#1f2937', Naranja: '#f97316', Gris: '#9ca3af', 'Marrón toffee': '#b7791f' };
 
 const MODELS = {
   aurora: {
@@ -314,8 +314,15 @@ const MODELS = {
       'https://images.unsplash.com/photo-1550355291-bbee04a92027?q=80&w=1600&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1600353068865-26fdf1d5bda0?q=80&w=1600&auto=format&fit=crop',
     ],
+    imagesByColor: {
+      'Azul': '/assets/models/aurora/aurora72-azul.webp',
+      'Blanco': '/assets/models/aurora/aurora-72-blanco.webp',
+      'Gris': '/assets/models/aurora/aurora-72-gris.webp',
+      'Negro': '/assets/models/aurora/aurora-72-negro.webp',
+      'Rojo': '/assets/models/aurora/aurora-72-rojo.webp',
+    },
     colors: ['Blanco', 'Azul', 'Negro', 'Gris', 'Rojo'],
-    seats: ['Beige', 'Negro', 'Naranja'],
+    seats: ['Naranja', 'Gris'],
     variants: [
       { name: 'Rider (urbano)', details: ['Suspensión afinada para confort', 'Neumático mixto 14"', 'Iluminación LED'] },
       { name: 'Explorer (todo terreno)', details: ['Neumático AT 14"', 'Mayor despeje', 'Protecciones y faldones'] },
@@ -588,7 +595,7 @@ function AdvancedConfigurator() {
               </div>
             </div>
             <div>
-              <label className="block text-sm text-white/70">Tapicería</label>
+              <label className="block text-sm text-white/70">Color de Asientos</label>
               <select value={seats} onChange={(e)=>setSeats(e.target.value)} className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none">
                 <option value="">Selecciona…</option>
                 {(modelData?.seats||[]).map(s => (<option key={s} value={s}>{s}</option>))}
@@ -656,8 +663,8 @@ function AdvancedConfigurator() {
         <div className="sticky top-24 space-y-6">
           <div className="overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 to-white/5 p-0 backdrop-blur">
             <div className="relative">
-              <img src={previewImg} alt={`Preview ${modelData?.name||''}`} className="h-72 w-full object-cover"/>
-              <div className="absolute inset-0 mix-blend-multiply opacity-60" style={{ background: color ? colorHex : 'transparent'}}/>
+              <img src={modelData?.imagesByColor?.[color] || previewImg} alt={`Preview ${modelData?.name||''}`} className="h-72 w-full object-cover"/>
+              <div className="absolute inset-0 mix-blend-multiply opacity-60" style={{ background: (!modelData?.imagesByColor?.[color] && color) ? colorHex : 'transparent'}}/>
               <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: `linear-gradient(90deg, ${seatHex} 0%, ${seatHex} 100%)`, opacity: 0.9 }}/>
               <div className="absolute left-4 top-4 flex flex-wrap gap-2">
                 <Pill><IUsers/> {modelData?.specs?.Pasajeros || '4'} pax</Pill>
@@ -669,7 +676,7 @@ function AdvancedConfigurator() {
             </div>
             <div className="p-6">
               <h4 className="text-lg font-semibold text-white">{modelData?.name} — Vista previa</h4>
-              <p className="mt-1 text-sm text-white/70">Color: <span className="text-white">{color || '—'}</span> • Tapicería: <span className="text-white">{seats || '—'}</span> • Techo: <span className="text-white">{model==='halcon' ? roof : 'Estándar'}</span></p>
+              <p className="mt-1 text-sm text-white/70">Color: <span className="text-white">{color || '—'}</span> • Color de Asientos: <span className="text-white">{seats || '—'}</span> • Techo: <span className="text-white">{model==='halcon' ? roof : 'Estándar'}</span></p>
               <div className="mt-4 flex flex-wrap gap-2 text-xs text-white/70">
                 {packages.map(p => (<Pill key={p}><Icon path="M20 6L9 17l-5-5" className="text-emerald-300"/> {p}</Pill>))}
               </div>
@@ -677,7 +684,6 @@ function AdvancedConfigurator() {
                 <button className="group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300">
                   Solicitar cotización <IChevron className="transition group-hover:translate-x-0.5"/>
                 </button>
-                <button className="rounded-full border border-white/15 bg-white/5 px-5 py-3 font-medium text-white/90 backdrop-blur hover:bg-white/10">Guardar configuración</button>
               </div>
               <p className="mt-3 text-xs text-white/60">Accesorios seleccionados: <span className="text-white">{selected.length}</span>. Los precios se comparten solo en cotización.</p>
             </div>

@@ -20,7 +20,7 @@ import { createRoot } from "react-dom/client";
  * Configurator props
  * @param {string} baseImage            - Imagen base del vehículo (fallback)
  * @param {OptionColor[]} colorOptions  - Opciones de color (pueden traer imageUrl por color)
- * @param {OptionSeat[]} seatOptions    - Opciones de tapicería
+  * @param {OptionSeat[]} seatOptions    - Opciones de color de asientos
  * @param {boolean=} solarAvailable     - Si el modelo permite paquete solar
  * @param {string=} defaultColor        - Color inicial por nombre
  * @param {string=} defaultSeat         - Tapicería inicial por nombre
@@ -107,7 +107,7 @@ export default function Configurator({
 
         {/* Tapicería */}
         <div>
-          <label className="block text-sm text-white/70 mb-2">Tapicería</label>
+          <label className="block text-sm text-white/70 mb-2">Color de Asientos</label>
           <div className="flex flex-wrap gap-2">
             {seatOptions.map((s) => (
               <Swatch
@@ -141,7 +141,7 @@ export default function Configurator({
       {/* Resumen y CTA (sin precios) */}
       <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
         <InfoPill label="Color" value={color || "—"} />
-        <InfoPill label="Tapicería" value={seat || "—"} />
+         <InfoPill label="Color de Asientos" value={seat || "—"} />
         {solarAvailable ? (
           <InfoPill label="Paquete" value={solar ? "Solar" : "—"} />
         ) : (

@@ -321,6 +321,30 @@ const MODELS = {
       'Negro': '/assets/models/aurora/aurora-72-negro.webp',
       'Rojo': '/assets/models/aurora/aurora-72-rojo.webp',
     },
+    imagesByColorSeat: {
+      'Azul': {
+        'Gris': '/assets/models/aurora/aurora72-azul-asientosgris_q90.webp',
+        'Naranja': '/assets/models/aurora/aurora72-azul-asientosnaranja_q90.webp'
+      },
+      'Blanco': {
+        'Gris': '/assets/models/aurora/aurora-72-blanco-asientosgris_q90.webp',
+        // Nota: el archivo tiene un nombre con "narjana"; lo referenciamos tal cual
+        'Naranja': '/assets/models/aurora/aurora-72-blanco-asientosnarjana_q90.webp'
+      },
+      'Gris': {
+        'Gris': '/assets/models/aurora/aurora-72-gris-asientosgris_q90.webp',
+        'Naranja': '/assets/models/aurora/aurora-72-gris-asientosnaranja_q90.webp'
+      },
+      'Negro': {
+        'Gris': '/assets/models/aurora/aurora-72-negro-asientosgris_q90.webp',
+        'Naranja': '/assets/models/aurora/aurora-72-negro-asientosnaranja_q90.webp'
+      },
+      'Rojo': {
+        'Gris': '/assets/models/aurora/aurora-72-rojo-asientosgris_q90.webp',
+        // El archivo está como "asientonaranja"
+        'Naranja': '/assets/models/aurora/aurora-72-rojo-asientonaranja_q90.webp'
+      },
+    },
     colors: ['Blanco', 'Azul', 'Negro', 'Gris', 'Rojo'],
     seats: ['Naranja', 'Gris'],
     variants: [
@@ -663,8 +687,8 @@ function AdvancedConfigurator() {
         <div className="sticky top-24 space-y-6">
           <div className="overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 to-white/5 p-0 backdrop-blur">
             <div className="relative">
-              <img src={modelData?.imagesByColor?.[color] || previewImg} alt={`Preview ${modelData?.name||''}`} className="h-72 w-full object-cover"/>
-              <div className="absolute inset-0 mix-blend-multiply opacity-60" style={{ background: (!modelData?.imagesByColor?.[color] && color) ? colorHex : 'transparent'}}/>
+              <img src={modelData?.imagesByColorSeat?.[color]?.[seats] || modelData?.imagesByColor?.[color] || previewImg} alt={`Preview ${modelData?.name||''}`} className="h-72 w-full object-cover"/>
+              <div className="absolute inset-0 mix-blend-multiply opacity-60" style={{ background: (!modelData?.imagesByColorSeat?.[color]?.[seats] && !modelData?.imagesByColor?.[color] && color) ? colorHex : 'transparent'}}/>
               <div className="absolute bottom-0 left-0 right-0 h-10" style={{ background: `linear-gradient(90deg, ${seatHex} 0%, ${seatHex} 100%)`, opacity: 0.9 }}/>
               <div className="absolute left-4 top-4 flex flex-wrap gap-2">
                 <Pill><IUsers/> {modelData?.specs?.Pasajeros || '4'} pax</Pill>

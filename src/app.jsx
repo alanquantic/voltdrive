@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import Configurator from './components/Configurator.jsx';
 
@@ -731,6 +732,13 @@ function QuoteModalTrigger({ form, setForm, configuration }){
 
   const invalid = !form.name || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email||'') || !form.phone || !form.city;
 
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+
   async function submit(){
     if (invalid) return;
     setSending(true);
@@ -749,10 +757,10 @@ function QuoteModalTrigger({ form, setForm, configuration }){
       <button onClick={()=>setOpen(true)} className="group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300">
         Solicitar cotización <IChevron className="transition group-hover:translate-x-0.5"/>
       </button>
-      {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {open && createPortal(
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60" onClick={()=>!sending && setOpen(false)}></div>
-          <div className="relative z-10 w-full max-w-2xl rounded-3xl border border-white/10 bg-black/80 p-6 text-white backdrop-blur">
+          <div className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-white/10 bg-black/80 p-6 text-white backdrop-blur">
             <h3 className="text-xl font-semibold">Resumen y datos para cotización</h3>
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="rounded-2xl border border-white/10 p-4">
@@ -808,13 +816,13 @@ function QuoteModalTrigger({ form, setForm, configuration }){
                 </div>
               </div>
             </div>
-            <div className="mt-4 flex items-center justify-end gap-3">
+            <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
               <button disabled={sending} onClick={()=>setOpen(false)} className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-white/90 backdrop-blur hover:bg-white/10">Cancelar</button>
               <button disabled={sending||invalid} onClick={submit} className={`rounded-full px-5 py-2 font-medium ${sending||invalid? 'bg-emerald-400/50 text-emerald-950/80' : 'bg-emerald-400 text-emerald-950 hover:bg-emerald-300'}`}>{sending? 'Enviando…' : 'Enviar cotización'}</button>
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
     </>
   );
 }

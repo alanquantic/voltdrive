@@ -48,6 +48,9 @@ const ISpark   = (p)=> <Icon {...p} path="M12 2l2.5 6H21l-5 4 2 8-6-4-6 4 2-8-5-
 const ISun     = (p)=> <Icon {...p} path="M12 4v2m0 12v2m8-8h-2M6 12H4m11.31 5.31l-1.42-1.42M8.11 8.11L6.69 6.69m10.62 0l-1.42 1.42M8.11 15.89l-1.42 1.42M12 8a4 4 0 100 8 4 4 0 000-8z"/>;
 const ISettings= (p)=> <Icon {...p} path="M12 15a3 3 0 110-6 3 3 0 010 6zm7.4-3a7.4 7.4 0 00-.1-1l2-1.6-2-3.4-2.4 1a7.4 7.4 0 00-1.7-1l-.4-2.6H9.2l-.4 2.6a7.4 7.4 0 00-1.7 1l-2.4-1-2 3.4 2 1.6a7.4 7.4 0 000 2l-2 1.6 2 3.4 2.4-1a7.4 7.4 0 001.7 1l.4 2.6h5.6l.4-2.6a7.4 7.4 0 001.7-1l2.4 1 2-3.4-2-1.6c.1-.3.1-.7.1-1z"/>;
 const IPhone   = (p)=> <Icon {...p} path="M22 16.92V21a2 2 0 01-2.18 2A19.8 19.8 0 013 5.18 2 2 0 015 3h4.09a2 2 0 012 1.72l.57 4.06a2 2 0 01-.55 1.68l-1.24 1.24a16 16 0 006.88 6.88l1.24-1.24a2 2 0 011.68-.55l4.06.57A2 2 0 0122 16.92z"/>;
+const IShare   = (p)=> <Icon {...p} path="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v14"/>;
+const ILink    = (p)=> <Icon {...p} path="M10 13a5 5 0 007.07 0l2.12-2.12a5 5 0 00-7.07-7.07L10.1 5M14 11a5 5 0 00-7.07 0L4.8 13.12a5 5 0 007.07 7.07L14 18"/>;
+const IWhats   = (p)=> <Icon {...p} path="M20.52 3.48A11.8 11.8 0 0012 0C5.37 0 0 5.37 0 12c0 2.11.55 4.1 1.5 5.82L0 24l6.4-1.67A11.94 11.94 0 0012 24c6.63 0 12-5.37 12-12 0-3.2-1.3-6.21-3.48-8.52zM12 21.5c-1.93 0-3.72-.56-5.23-1.52l-.37-.23-3.1.8.83-3.02-.24-.39A9.47 9.47 0 012.5 12C2.5 6.76 6.76 2.5 12 2.5S21.5 6.76 21.5 12 17.24 21.5 12 21.5zm4.14-6.4c-.23-.12-1.34-.66-1.55-.74-.21-.08-.36-.12-.52.12-.16.23-.6.74-.74.9-.14.16-.27.18-.5.06-.23-.12-.98-.36-1.87-1.12-.69-.55-1.16-1.24-1.3-1.45-.14-.22-.02-.34.1-.46.1-.1.23-.26.35-.39.12-.13.16-.22.24-.37.08-.16.04-.29-.02-.41-.06-.12-.52-1.25-.72-1.72-.19-.46-.37-.4-.52-.41l-.44-.01c-.16 0-.41.06-.63.29-.22.23-.84.82-.84 2 0 1.17.86 2.3.98 2.46.12.16 1.69 2.58 4.1 3.62.57.25 1.02.4 1.37.51.58.18 1.1.16 1.52.1.46-.07 1.34-.55 1.53-1.08.19-.53.19-.98.13-1.08-.06-.1-.21-.16-.44-.28z"/>;
 const IMail    = (p)=> <Icon {...p} path="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm0 0l8 7 8-7"/>;
 const ISend    = (p)=> <Icon {...p} path="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>;
 const ICamera  = (p)=> <Icon {...p} path="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2v11zM12 17a5 5 0 100-10 5 5 0 000 10z"/>;
@@ -722,7 +725,7 @@ function AdvancedConfigurator() {
   );
 }
 
-function QuoteModalTrigger({ form, setForm, configuration }){
+function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar cotización' }){
   const [open, setOpen] = useState(false);
   const [sending, setSending] = useState(false);
 
@@ -751,7 +754,7 @@ function QuoteModalTrigger({ form, setForm, configuration }){
   return (
     <>
       <button onClick={()=>setOpen(true)} className="group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300">
-        Solicitar cotización <IChevron className="transition group-hover:translate-x-0.5"/>
+        {label} <IChevron className="transition group-hover:translate-x-0.5"/>
       </button>
       {open && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -1065,6 +1068,7 @@ function FAQInline() {
 
 function ModelPage({ m }) {
   const [config, setConfig] = useState({ color: '', seat: '', solar: false });
+  const [leadForm, setLeadForm] = useState({ name:'', email:'', phone:'', type:'Compra', units:'1', city:'', country:'México' });
 
   return (
     <main className="min-h-screen bg-[radial-gradient(80rem_50rem_at_50%_-10%,rgba(16,185,129,0.12),rgba(0,0,0,0))]">
@@ -1084,10 +1088,36 @@ function ModelPage({ m }) {
               <Pill><IShield/> {m.specs.Frenos}</Pill>
               {m.key==='halcon' && <Pill><ISun/> Techo solar (opcional)</Pill>}
             </div>
-            <div className="mt-8 flex gap-3">
-              <a href="#contacto" className="inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300">Solicitar cotización <IChevron/></a>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <QuoteModalTrigger
+                form={leadForm}
+                setForm={setLeadForm}
+                configuration={{
+                  model: m.name,
+                  version: '',
+                  color: config.color,
+                  seats: config.seat,
+                  roof: m.key==='halcon' && config.solar? 'Techo solar' : 'Estándar',
+                  packages: [], selectedAccessories: []
+                }}
+              />
+              <QuoteModalTrigger
+                form={leadForm}
+                setForm={(f)=>{ setLeadForm({ ...leadForm, type:'Compra' }); return setLeadForm; }}
+                configuration={{
+                  model: m.name,
+                  version: '',
+                  color: config.color,
+                  seats: config.seat,
+                  roof: m.key==='halcon' && config.solar? 'Techo solar' : 'Estándar',
+                  packages: [], selectedAccessories: []
+                }}
+                label="Quiero estrenar"
+              />
               <a href="#especificaciones" className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-medium text-white/90 backdrop-blur hover:bg-white/10">Ver especificaciones</a>
             </div>
+
+            <ProductMeta m={m}/>
           </div>
           <div>
             <Configurator
@@ -1208,6 +1238,33 @@ function ModelPage({ m }) {
 
       <Footer/>
     </main>
+  );
+}
+
+function ProductMeta({ m }){
+  const url = typeof window!== 'undefined' ? window.location.href : 'https://voltdrive.vercel.app';
+  const shareText = `Volt Drive — ${m.name}`;
+  const mailHref = `mailto:?subject=${encodeURIComponent(shareText)}&body=${encodeURIComponent(url)}`;
+  const waHref = `https://wa.me/?text=${encodeURIComponent(shareText+" "+url)}`;
+  function copyLink(){
+    try { navigator.clipboard.writeText(url); alert('Enlace copiado'); } catch(e){ /* noop */ }
+  }
+  const resumen = m.key==='aurora'
+    ? 'Carrito eléctrico de 4 pasajeros con plataforma 72V LiFePO₄. Pantalla 12.3” (según paquete), frenos de disco F/R con EPB y conducción silenciosa y confortable.'
+    : 'Carrito eléctrico 48V para tours y eventos. Techo solar opcional (+~20% autonomía), modos ECO/SPORT y arranque push‑to‑start.';
+  return (
+    <div className="mt-6 max-w-2xl text-white/80">
+      <p>{resumen}</p>
+      <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+        <span className="text-white/50">Compartir:</span>
+        <a href={waHref} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-3 py-1 hover:bg-white/10"><IWhats/> WhatsApp</a>
+        <a href={mailHref} className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-3 py-1 hover:bg-white/10"><IMail/> Correo</a>
+        <button onClick={copyLink} className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-3 py-1 hover:bg-white/10"><ILink/> Copiar enlace</button>
+        {typeof navigator!=='undefined' && navigator.share && (
+          <button onClick={()=>navigator.share({ title: shareText, url })} className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-3 py-1 hover:bg-white/10"><IShare/> Compartir</button>
+        )}
+      </div>
+    </div>
   );
 }
 

@@ -33,6 +33,7 @@ export default function Configurator({
   solarAvailable = false,
   defaultColor,
   defaultSeat,
+  imagesByColorSeat, // opcional: { [colorName]: { [seatName]: imageUrl } }
   onChange,
 }) {
   const [color, setColor] = useState(defaultColor || colorOptions[0]?.name || "");
@@ -48,10 +49,11 @@ export default function Configurator({
     [seat, seatOptions]
   );
 
-  // Imagen a mostrar: si el color trae imageUrl, úsala; si no, la base.
-  const activeImage = activeColor?.imageUrl || baseImage;
-  // Si NO hay imagen específica del color, pintamos overlay con el HEX del color.
-  const showColorOverlay = !activeColor?.imageUrl && !!activeColor?.hex;
+  // Imagen a mostrar: prioridad por combinación Color×Asientos, luego por color, luego base.
+  const imageBySeat = imagesByColorSeat?.[color]?.[seat];
+  const activeImage = imageBySeat || activeColor?.imageUrl || baseImage;
+  // Si NO hay imagen específica (ni por color, ni por combinación), pintamos overlay con el HEX del color.
+  const showColorOverlay = !imageBySeat && !activeColor?.imageUrl && !!activeColor?.hex;
 
   useEffect(() => {
     onChange?.({ color, seat, solar });

@@ -467,15 +467,11 @@ function SpecsTable({ specs }) {
   const entries = Object.entries(specs || {});
   return (
     <div className="overflow-hidden rounded-3xl border border-white/10">
-      <div className="grid grid-cols-3 bg-white/5 text-white">
-        <div className="p-3 text-sm text-white/60">Especificación</div>
-        <div className="col-span-2 p-3 text-sm text-white/60">Detalle</div>
-      </div>
-      <div className="divide-y divide-white/10 text-white/90">
+      <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-3">
         {entries.map(([k,v]) => (
-          <div key={k} className="grid grid-cols-3">
-            <div className="p-3 text-sm font-medium text-white/70">{k}</div>
-            <div className="col-span-2 p-3">{v}</div>
+          <div key={k} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div className="text-xs uppercase tracking-wide text-white/50">{k}</div>
+            <div className="mt-1 text-white">{v}</div>
           </div>
         ))}
       </div>
@@ -837,6 +833,8 @@ function Comparison() {
     { k: 'Cap. ascenso', f: (m)=>m.specs['Cap. ascenso'] },
     { k: 'Frenos', f: (m)=>m.specs['Frenos'] },
     { k: 'Dimensiones', f: (m)=>m.specs['Dimensiones'] },
+    { k: 'Motor', f: (m)=>m.specs['Motor'] },
+    { k: 'Cargador', f: (m)=>m.specs['Cargador'] },
   ];
   return (
     <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur">
@@ -1097,6 +1095,7 @@ function ModelPage({ m }) {
               colorOptions={(m.colors||[]).map(name => ({ name, hex: COLOR_HEX[name] || '#9ca3af' }))}
               seatOptions={(m.seats||[]).map(name => ({ name, hex: SEAT_HEX[name] || '#1f2937' }))}
               solarAvailable={m.key==='halcon'}
+              imagesByColorSeat={m.imagesByColorSeat}
               onChange={(cfg)=> setConfig(cfg)}
             />
           </div>
@@ -1115,7 +1114,32 @@ function ModelPage({ m }) {
       </Section>
 
       <Section id="especificaciones" title="Especificaciones técnicas" subtitle="Valores sujetos a cambio según lote y paquete.">
-        <SpecsTable specs={m.specs}/>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <SpecsTable specs={m.specs}/>
+          </div>
+          <div className="space-y-4">
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+              <div className="mb-2 text-sm text-white/60">Paquetes</div>
+              <ul className="list-disc pl-5 text-white/80 text-sm space-y-1">
+                {(m.key==='aurora'?
+                  ['Base: LED completo, frenos disco F/R, cinturones, cargador a bordo, USB',
+                   'Tecnología: pantalla 12.3”, cámara de reversa, conectividad smartphone',
+                   'Confort: sound bar, luz ambiente en techo, cargador inalámbrico, tapicería premium']:
+                  ['Base: LED completo, frenos disco F/R, cinturones, cargador a bordo, USB',
+                   'Tecnología: cámara de reversa, conectividad ampliada',
+                   'Confort: asientos premium con descansabrazos, luz ambiente',
+                   'Solar: techo fotovoltaico (+~20% autonomía)']).map((t)=> (<li key={t}>{t}</li>))}
+              </ul>
+            </div>
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+              <div className="mb-2 text-sm text-white/60">Energía y carga</div>
+              <div className="text-white/80 text-sm">
+                Voltaje: 110–240V AC • Tiempo: 6–8 h • EVSE EP3 16A 5 m (IP44)
+              </div>
+            </div>
+          </div>
+        </div>
       </Section>
 
       <Section id="variantes" title="Versiones y paquetes">

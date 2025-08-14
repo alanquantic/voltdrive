@@ -88,10 +88,10 @@ function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-black/40 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-3">
+        <a href="#/about" className="flex items-center gap-3" aria-label="Ir al inicio">
           <svg width="34" height="34" viewBox="0 0 100 100"><path d="M14 35L36 70c1.9 3 6.3 3 8.2 0l22.4-35" stroke="#22C55E" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/><path d="M56 30h12c16 0 28 12 28 27s-12 27-28 27H56" stroke="#22C55E" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/></svg>
           <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-lg font-semibold text-transparent">Volt Drive</span>
-        </div>
+        </a>
         <nav className="hidden gap-6 md:flex">
           <a href="#modelos" className="text-sm text-white/80 hover:text-white">Modelos</a>
           <a href="#/aurora" className="text-sm text-white/80 hover:text-white">Aurora 72</a>
@@ -314,9 +314,11 @@ const MODELS = {
     tagline: 'Potencia y tecnología para experiencias premium',
     hero: '/assets/models/aurora/hero.webp',
     gallery: [
-      'https://images.unsplash.com/photo-1620884690400-3d3670e31e97?q=80&w=1600&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1550355291-bbee04a92027?q=80&w=1600&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1600353068865-26fdf1d5bda0?q=80&w=1600&auto=format&fit=crop',
+      '/assets/models/aurora/aurora-72-rojo.webp',
+      '/assets/models/aurora/aurora72-azul.webp',
+      '/assets/models/aurora/aurora-72-gris.webp',
+      '/assets/models/aurora/aurora-72-negro.webp',
+      '/assets/models/aurora/aurora-72-blanco.webp',
     ],
     imagesByColor: {
       'Azul': '/assets/models/aurora/aurora72-azul.webp',
@@ -388,9 +390,11 @@ const MODELS = {
     tagline: 'Eficiencia y versatilidad para rutas y tours',
     hero: '/assets/models/halcon/hero.webp',
     gallery: [
-      'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=1600&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1520013817306-3b3fbe660154?q=80&w=1600&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1544829879-2fa3f3a5153f?q=80&w=1600&auto=format&fit=crop',
+      '/assets/models/halcon/hero.webp',
+      '/assets/models/halcon/hero.webp',
+      '/assets/models/halcon/hero.webp',
+      '/assets/models/halcon/hero.webp',
+      '/assets/models/halcon/hero.webp',
     ],
     colors: ['Gris', 'Blanco', 'Rojo', 'Azul', 'Negro'],
     seats: ['Negro', 'Marrón toffee'],
@@ -500,11 +504,23 @@ function Variants({ variants }) {
 function Gallery({ images }) {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-      {images.map((src, i)=> (
-        <div key={src} className={`overflow-hidden rounded-3xl border border-white/10 ${i===0?'md:col-span-2':''}`}>
-          <img src={src} alt={`gal-${i}`} className="h-56 w-full object-cover md:h-64"/>
-        </div>
-      ))}
+      {/* 1 grande izquierda (span 2) + 1 derecha */}
+      {images[0] && (
+        <div className="overflow-hidden rounded-3xl border border-white/10 md:col-span-2"><img src={images[0]} alt="gal-0" className="h-56 w-full object-cover md:h-64"/></div>
+      )}
+      {images[1] && (
+        <div className="overflow-hidden rounded-3xl border border-white/10"><img src={images[1]} alt="gal-1" className="h-56 w-full object-cover md:h-64"/></div>
+      )}
+      {/* 3 abajo: 2 medianas + 1 grande (span 2) */}
+      {images[2] && (
+        <div className="overflow-hidden rounded-3xl border border-white/10"><img src={images[2]} alt="gal-2" className="h-56 w-full object-cover md:h-64"/></div>
+      )}
+      {images[3] && (
+        <div className="overflow-hidden rounded-3xl border border-white/10 md:col-span-2"><img src={images[3]} alt="gal-3" className="h-56 w-full object-cover md:h-64"/></div>
+      )}
+      {images[4] && (
+        <div className="overflow-hidden rounded-3xl border border-white/10 md:col-span-3"><img src={images[4]} alt="gal-4" className="h-56 w-full object-cover md:h-64"/></div>
+      )}
     </div>
   );
 }
@@ -553,8 +569,8 @@ function ModelCard({ m }) {
           <li className="flex items-center gap-2"><ISettings/> {m.specs['Suspensión']}</li>
         </ul>
         <div className="pt-4">
-          <a href="#configurador" className="group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-4 py-2 font-medium text-emerald-950 transition hover:bg-emerald-300">
-            Arma tu {m.name} <IChevron/>
+          <a href={`#/${m.key}`} className="group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-4 py-2 font-medium text-emerald-950 transition hover:bg-emerald-300">
+            Ver {m.name} <IChevron/>
           </a>
         </div>
       </div>
@@ -1123,7 +1139,7 @@ function ModelPage({ m }) {
                 }}
                 label="Quiero estrenar"
               />
-              <a href="#especificaciones" className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-medium text-white/90 backdrop-blur hover:bg-white/10">Ver especificaciones</a>
+              <button onClick={()=>{ document.getElementById('especificaciones')?.scrollIntoView({ behavior:'smooth' }); }} className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-medium text-white/90 backdrop-blur hover:bg-white/10">Ver especificaciones</button>
             </div>
 
             <ProductMeta m={m}/>

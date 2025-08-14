@@ -774,6 +774,18 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
 
+  // Escucha evento global para abrir el modal desde otros componentes (configurador)
+  useEffect(() => {
+    const handler = (e) => {
+      if (e?.detail?.form && typeof setForm === 'function') {
+        setForm(e.detail.form);
+      }
+      setOpen(true);
+    };
+    window.addEventListener('vd_open_quote', handler);
+    return () => window.removeEventListener('vd_open_quote', handler);
+  }, [setForm]);
+
   async function submit(){
     if (invalid) return;
     setSending(true);
@@ -792,14 +804,6 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
       <button onClick={()=>setOpen(true)} className="group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300">
         {label} <IChevron className="transition group-hover:translate-x-0.5"/>
       </button>
-      {/* Event bridge para abrir el modal desde el configurador embebido */}
-      {typeof window !== 'undefined' && (
-        window.addEventListener && window.removeEventListener && (function(){
-          const handler = (e)=>{ if (!open){ setForm?.(e.detail.form); setOpen(true);} };
-          window.addEventListener('vd_open_quote', handler);
-          return () => window.removeEventListener('vd_open_quote', handler);
-        })()
-      )}
       {open && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="quote-title">
           <div className="absolute inset-0 bg-black/60" onClick={()=>!sending && setOpen(false)}></div>

@@ -23999,6 +23999,16 @@
       window.addEventListener("keydown", onKey);
       return () => window.removeEventListener("keydown", onKey);
     }, [open]);
+    (0, import_react2.useEffect)(() => {
+      const handler = (e) => {
+        if (e?.detail?.form && typeof setForm === "function") {
+          setForm(e.detail.form);
+        }
+        setOpen(true);
+      };
+      window.addEventListener("vd_open_quote", handler);
+      return () => window.removeEventListener("vd_open_quote", handler);
+    }, [setForm]);
     async function submit() {
       if (invalid) return;
       setSending(true);
@@ -24013,16 +24023,7 @@
         setSending(false);
       }
     }
-    return /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("button", { onClick: () => setOpen(true), className: "group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300" }, label, " ", /* @__PURE__ */ import_react2.default.createElement(IChevron, { className: "transition group-hover:translate-x-0.5" })), typeof window !== "undefined" && (window.addEventListener && window.removeEventListener && function() {
-      const handler = (e) => {
-        if (!open) {
-          setForm?.(e.detail.form);
-          setOpen(true);
-        }
-      };
-      window.addEventListener("vd_open_quote", handler);
-      return () => window.removeEventListener("vd_open_quote", handler);
-    }()), open && (0, import_react_dom.createPortal)(
+    return /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("button", { onClick: () => setOpen(true), className: "group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300" }, label, " ", /* @__PURE__ */ import_react2.default.createElement(IChevron, { className: "transition group-hover:translate-x-0.5" })), open && (0, import_react_dom.createPortal)(
       /* @__PURE__ */ import_react2.default.createElement("div", { className: "fixed inset-0 z-[100] flex items-center justify-center p-4", role: "dialog", "aria-modal": "true", "aria-labelledby": "quote-title" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "absolute inset-0 bg-black/60", onClick: () => !sending && setOpen(false) }), /* @__PURE__ */ import_react2.default.createElement("div", { className: "relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-white/10 bg-black/80 p-6 text-white backdrop-blur", tabIndex: -1 }, /* @__PURE__ */ import_react2.default.createElement("h3", { id: "quote-title", className: "text-xl font-semibold" }, "Resumen y datos para cotizaci\xF3n"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-4 grid grid-cols-1 gap-4 md:grid-cols-2" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "rounded-2xl border border-white/10 p-4" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "text-sm text-white/60" }, "Resumen"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-2 space-y-1 text-sm" }, Object.entries({
         Modelo: configuration.model,
         Versi\u00F3n: configuration.version,

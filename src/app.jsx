@@ -314,11 +314,11 @@ const MODELS = {
     tagline: 'Potencia y tecnología para experiencias premium',
     hero: '/assets/models/aurora/hero.webp',
     gallery: [
-      '/assets/models/aurora/aurora-72-rojo.webp',
-      '/assets/models/aurora/aurora72-azul.webp',
-      '/assets/models/aurora/aurora-72-gris.webp',
-      '/assets/models/aurora/aurora-72-negro.webp',
-      '/assets/models/aurora/aurora-72-blanco.webp',
+      '/assets/models/aurora/aurora_galeria0.webp',
+      '/assets/models/aurora/aurora_galeria1.webp',
+      '/assets/models/aurora/aurora_galeria2.webp',
+      '/assets/models/aurora/aurora_galeria3.webp',
+      '/assets/models/aurora/aurora_galeria4.webp',
     ],
     imagesByColor: {
       'Azul': '/assets/models/aurora/aurora72-azul.webp',

@@ -89,7 +89,7 @@ function Header() {
     <header className="sticky top-0 z-40 border-b border-white/10 bg-black/40 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         <a href="#/about" className="flex items-center gap-3" aria-label="Ir al inicio">
-          <svg width="34" height="34" viewBox="0 0 100 100"><path d="M14 35L36 70c1.9 3 6.3 3 8.2 0l22.4-35" stroke="#22C55E" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/><path d="M56 30h12c16 0 28 12 28 27s-12 27-28 27H56" stroke="#22C55E" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          <img src="/assets/brand/LOGO_VOLT_DRIVE.png" alt="Volt Drive" className="h-6 w-6"/>
           <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-lg font-semibold text-transparent">Volt Drive</span>
         </a>
         <nav className="hidden gap-6 md:flex">
@@ -1220,9 +1220,11 @@ function ModelPage({ m }) {
               <div className="relative flex h-44 items-center justify-center md:h-56">
                 <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: 'radial-gradient(60% 60% at 50% 40%, rgba(16,185,129,0.18), rgba(0,0,0,0))' }}/>
                 <img
-                  src="/assets/brand/logo.png"
+                  src="/assets/brand/LOGO_VOLT_DRIVE.png"
                   alt="Volt Drive"
-                  className="relative h-14 w-auto md:h-20 transition-transform duration-300 group-hover:scale-105"
+                  width="400"
+                  height="400"
+                  className="relative h-20 w-20 md:h-24 md:w-24 transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
             </a>

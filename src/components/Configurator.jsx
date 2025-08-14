@@ -33,6 +33,7 @@ export default function Configurator({
   solarAvailable = false,
   defaultColor,
   defaultSeat,
+  onQuote,
   imagesByColorSeat, // opcional: { [colorName]: { [seatName]: imageUrl } }
   onChange,
 }) {
@@ -155,9 +156,11 @@ export default function Configurator({
         <button
           type="button"
           className="inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300"
-          onClick={() =>
-            onChange?.({ color, seat, solar })
-          }
+          onClick={() => {
+            const cfg = { color, seat, solar };
+            onChange?.(cfg);
+            onQuote?.(cfg);
+          }}
         >
           Solicitar cotización
           <ChevronIcon />

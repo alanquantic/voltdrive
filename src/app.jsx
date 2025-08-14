@@ -789,6 +789,14 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
       <button onClick={()=>setOpen(true)} className="group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300">
         {label} <IChevron className="transition group-hover:translate-x-0.5"/>
       </button>
+      {/* Event bridge para abrir el modal desde el configurador embebido */}
+      {typeof window !== 'undefined' && (
+        window.addEventListener && window.removeEventListener && (function(){
+          const handler = (e)=>{ if (!open){ setForm?.(e.detail.form); setOpen(true);} };
+          window.addEventListener('vd_open_quote', handler);
+          return () => window.removeEventListener('vd_open_quote', handler);
+        })()
+      )}
       {open && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="quote-title">
           <div className="absolute inset-0 bg-black/60" onClick={()=>!sending && setOpen(false)}></div>
@@ -1151,7 +1159,14 @@ function ModelPage({ m }) {
               seatOptions={(m.seats||[]).map(name => ({ name, hex: SEAT_HEX[name] || '#1f2937' }))}
               solarAvailable={m.key==='halcon'}
               imagesByColorSeat={m.imagesByColorSeat}
-              onChange={(cfg)=> setConfig(cfg)}
+              onChange={(cfg)=> setConfig({ color: cfg.color, seat: cfg.seat, solar: cfg.solar })}
+              onQuote={(cfg)=> {
+                const form = { name:'', email:'', phone:'', type:'Compra', units:'1', city:'', country:'México' };
+                const configuration = { model: m.name, version: '', color: cfg.color, seats: cfg.seat, roof: (m.key==='halcon' && cfg.solar)? 'Techo solar':'Estándar', packages: [], selectedAccessories: [] };
+                // Llama al mismo modal de QuoteModalTrigger
+                const ev = new CustomEvent('vd_open_quote', { detail: { form, configuration } });
+                window.dispatchEvent(ev);
+              }}
             />
           </div>
         </div>
@@ -1415,8 +1430,14 @@ function App() {
   }, []);
 
   if (route === 'faq') return <FAQPage/>;
-  if (route === 'aurora') return <ModelPage m={MODELS.aurora}/>;
-  if (route === 'halcon') return <ModelPage m={MODELS.halcon}/>;
+  if (route === 'aurora') {
+    setTimeout(()=> window.scrollTo({ top: 0, behavior: 'instant' }), 0);
+    return <ModelPage m={MODELS.aurora}/>;
+  }
+  if (route === 'halcon') {
+    setTimeout(()=> window.scrollTo({ top: 0, behavior: 'instant' }), 0);
+    return <ModelPage m={MODELS.halcon}/>;
+  }
   if (route === 'configurador') return <ConfiguratorPage/>;
   // Home por defecto
   return <HomePage/>;

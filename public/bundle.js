@@ -23538,6 +23538,7 @@
     solarAvailable = false,
     defaultColor,
     defaultSeat,
+    onQuote,
     imagesByColorSeat,
     // opcional: { [colorName]: { [seatName]: imageUrl } }
     onChange
@@ -23614,7 +23615,11 @@
       {
         type: "button",
         className: "inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300",
-        onClick: () => onChange?.({ color, seat, solar })
+        onClick: () => {
+          const cfg = { color, seat, solar };
+          onChange?.(cfg);
+          onQuote?.(cfg);
+        }
       },
       "Solicitar cotizaci\xF3n",
       /* @__PURE__ */ import_react.default.createElement(ChevronIcon, null)
@@ -23995,7 +24000,16 @@
         setSending(false);
       }
     }
-    return /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("button", { onClick: () => setOpen(true), className: "group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300" }, label, " ", /* @__PURE__ */ import_react2.default.createElement(IChevron, { className: "transition group-hover:translate-x-0.5" })), open && (0, import_react_dom.createPortal)(
+    return /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("button", { onClick: () => setOpen(true), className: "group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300" }, label, " ", /* @__PURE__ */ import_react2.default.createElement(IChevron, { className: "transition group-hover:translate-x-0.5" })), typeof window !== "undefined" && (window.addEventListener && window.removeEventListener && function() {
+      const handler = (e) => {
+        if (!open) {
+          setForm?.(e.detail.form);
+          setOpen(true);
+        }
+      };
+      window.addEventListener("vd_open_quote", handler);
+      return () => window.removeEventListener("vd_open_quote", handler);
+    }()), open && (0, import_react_dom.createPortal)(
       /* @__PURE__ */ import_react2.default.createElement("div", { className: "fixed inset-0 z-[100] flex items-center justify-center p-4", role: "dialog", "aria-modal": "true", "aria-labelledby": "quote-title" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "absolute inset-0 bg-black/60", onClick: () => !sending && setOpen(false) }), /* @__PURE__ */ import_react2.default.createElement("div", { className: "relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-white/10 bg-black/80 p-6 text-white backdrop-blur", tabIndex: -1 }, /* @__PURE__ */ import_react2.default.createElement("h3", { id: "quote-title", className: "text-xl font-semibold" }, "Resumen y datos para cotizaci\xF3n"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-4 grid grid-cols-1 gap-4 md:grid-cols-2" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "rounded-2xl border border-white/10 p-4" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "text-sm text-white/60" }, "Resumen"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-2 space-y-1 text-sm" }, Object.entries({
         Modelo: configuration.model,
         Versi\u00F3n: configuration.version,
@@ -24082,7 +24096,13 @@
         seatOptions: (m.seats || []).map((name) => ({ name, hex: SEAT_HEX[name] || "#1f2937" })),
         solarAvailable: m.key === "halcon",
         imagesByColorSeat: m.imagesByColorSeat,
-        onChange: (cfg) => setConfig(cfg)
+        onChange: (cfg) => setConfig({ color: cfg.color, seat: cfg.seat, solar: cfg.solar }),
+        onQuote: (cfg) => {
+          const form = { name: "", email: "", phone: "", type: "Compra", units: "1", city: "", country: "M\xE9xico" };
+          const configuration = { model: m.name, version: "", color: cfg.color, seats: cfg.seat, roof: m.key === "halcon" && cfg.solar ? "Techo solar" : "Est\xE1ndar", packages: [], selectedAccessories: [] };
+          const ev = new CustomEvent("vd_open_quote", { detail: { form, configuration } });
+          window.dispatchEvent(ev);
+        }
       }
     )))), /* @__PURE__ */ import_react2.default.createElement(Section, { id: "resumen", title: "Resumen r\xE1pido" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4" }, m.highlights.map((h) => /* @__PURE__ */ import_react2.default.createElement("div", { key: h.title, className: "rounded-3xl border border-white/10 bg-white/5 p-5" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "mb-2 inline-flex items-center gap-2 text-emerald-300" }, h.icon, /* @__PURE__ */ import_react2.default.createElement("span", { className: "font-semibold text-white" }, h.title)), /* @__PURE__ */ import_react2.default.createElement("p", { className: "text-white/70" }, h.text))))), /* @__PURE__ */ import_react2.default.createElement(Section, { id: "especificaciones", title: "Especificaciones t\xE9cnicas", subtitle: "Valores sujetos a cambio seg\xFAn lote y paquete." }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "grid grid-cols-1 gap-6 lg:grid-cols-3" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "lg:col-span-2" }, /* @__PURE__ */ import_react2.default.createElement(SpecsTable, { specs: m.specs }), /* @__PURE__ */ import_react2.default.createElement(SpecAccordions, { m })), /* @__PURE__ */ import_react2.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "rounded-3xl border border-white/10 bg-white/5 p-5" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "mb-2 text-sm text-white/60" }, "Paquetes"), /* @__PURE__ */ import_react2.default.createElement("ul", { className: "list-disc pl-5 text-white/80 text-sm space-y-1" }, (m.key === "aurora" ? [
       "Base: LED completo, frenos disco F/R, cinturones, cargador a bordo, USB",
@@ -24220,8 +24240,14 @@
       return () => window.removeEventListener("hashchange", onHash);
     }, []);
     if (route === "faq") return /* @__PURE__ */ import_react2.default.createElement(FAQPage, null);
-    if (route === "aurora") return /* @__PURE__ */ import_react2.default.createElement(ModelPage, { m: MODELS.aurora });
-    if (route === "halcon") return /* @__PURE__ */ import_react2.default.createElement(ModelPage, { m: MODELS.halcon });
+    if (route === "aurora") {
+      setTimeout(() => window.scrollTo({ top: 0, behavior: "instant" }), 0);
+      return /* @__PURE__ */ import_react2.default.createElement(ModelPage, { m: MODELS.aurora });
+    }
+    if (route === "halcon") {
+      setTimeout(() => window.scrollTo({ top: 0, behavior: "instant" }), 0);
+      return /* @__PURE__ */ import_react2.default.createElement(ModelPage, { m: MODELS.halcon });
+    }
     if (route === "configurador") return /* @__PURE__ */ import_react2.default.createElement(ConfiguratorPage, null);
     return /* @__PURE__ */ import_react2.default.createElement(HomePage, null);
   }

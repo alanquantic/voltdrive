@@ -1121,18 +1121,6 @@ function ModelPage({ m }) {
                   roof: m.key==='halcon' && config.solar? 'Techo solar' : 'Estándar',
                   packages: [], selectedAccessories: []
                 }}
-              />
-              <QuoteModalTrigger
-                form={leadForm}
-                setForm={(f)=>{ setLeadForm({ ...leadForm, type:'Compra' }); return setLeadForm; }}
-                configuration={{
-                  model: m.name,
-                  version: '',
-                  color: config.color,
-                  seats: config.seat,
-                  roof: m.key==='halcon' && config.solar? 'Techo solar' : 'Estándar',
-                  packages: [], selectedAccessories: []
-                }}
                 label="Quiero estrenar"
               />
               <a href="#especificaciones" className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-medium text-white/90 backdrop-blur hover:bg-white/10">Ver especificaciones</a>
@@ -1168,6 +1156,7 @@ function ModelPage({ m }) {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <SpecsTable specs={m.specs}/>
+            <SpecAccordions m={m}/>
           </div>
           <div className="space-y-4">
             <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
@@ -1306,6 +1295,74 @@ function showToast(message){
   el.style.zIndex = '9999';
   document.body.appendChild(el);
   setTimeout(()=>{ el.style.transition = 'opacity .3s'; el.style.opacity = '0'; setTimeout(()=> el.remove(), 300); }, 1800);
+}
+
+function SpecAccordions({ m }){
+  const groups = m.key==='aurora' ? [
+    { t: 'Dimensiones y pesos', c: [
+      '3045 × 1400 × 1990–2030 mm • Eje ≈ 1660 mm • Altura libre ≈ 150 mm',
+      'Radio de giro ≈ 3.5 m • Peso ≈ 550–560 kg • Carga útil ≈ 360 kg'
+    ]},
+    { t: 'Tren motriz y electricidad', c: [
+      'Motor AC 72V 6.3 kW • Controlador 72V 350A',
+      'Batería LiFePO₄ 73.6V 105Ah (≈7.7 kWh) con BMS • Cargador 72V 20A',
+      'Tiempo de carga 6–8 h • DC/DC 72→12V 300W'
+    ]},
+    { t: 'Seguridad y confort', c: [
+      'Frenos de disco F/R + EPB • Cinturones retráctiles • Defensas',
+      'Asientos espuma moldeada con descansabrazos'
+    ]},
+    { t: 'Tecnología y conectividad', c: [
+      'Pantalla TFT 12.3” (paquete Tecnología) • Cámara de reversa',
+      'Bluetooth/CarPlay/Android Auto (según paquete)'
+    ]},
+    { t: 'Mantenimiento y legales', c: [
+      'Diario: presión de llantas y nivel de carga',
+      'Mensual: frenos/suspensión • Semestral: BMS/batería',
+      'Especificaciones sujetas a cambio sin previo aviso'
+    ]},
+  ] : [
+    { t: 'Dimensiones y pesos', c: [
+      '≈ 2900 × 1390 × 2030 mm • Eje ≈ 1660 mm • Altura 145 mm',
+      'Radio de giro ≤ 3.5 m • Peso ≈ 550 kg • Carga útil ≈ 360 kg'
+    ]},
+    { t: 'Tren motriz y electricidad', c: [
+      'Motor AC 48V 5 kW • Controlador 48V 350A',
+      'Batería LiFePO₄ 48V 105Ah • Cargador 48V 20A (110–240V)',
+      'Tiempo de carga 6–8 h • DC/DC 48→12V 300W'
+    ]},
+    { t: 'Seguridad y confort', c: [
+      'Frenos de disco F/R + EPB • Cinturones retráctiles',
+      'Asientos negro o marrón toffee con descansabrazos'
+    ]},
+    { t: 'Tecnología y conectividad', c: [
+      'Push‑to‑start con Bluetooth y NFC • Modos ECO/SPORT',
+      'Cargas USB/USB‑C • Techo solar opcional (+~20% autonomía)'
+    ]},
+    { t: 'Mantenimiento y legales', c: [
+      'Diario: presión de llantas y nivel de carga',
+      'Mensual: frenos/suspensión • Semestral: BMS/batería',
+      'Especificaciones sujetas a cambio sin previo aviso'
+    ]},
+  ];
+  const [open, setOpen] = React.useState(null);
+  return (
+    <div className="mt-6 space-y-3">
+      {groups.map((g, i) => (
+        <div key={g.t} className="overflow-hidden rounded-2xl border border-white/10">
+          <button onClick={()=> setOpen(open===i? null : i)} className="flex w-full items-center justify-between bg-white/5 px-4 py-3 text-left">
+            <span className="font-medium text-white">{g.t}</span>
+            <IChevron className={`transition ${open===i? 'rotate-90':''}`}/>
+          </button>
+          {open===i && (
+            <ul className="space-y-1 px-4 pb-4 text-sm text-white/80 list-disc pl-6">
+              {g.c.map((t)=> (<li key={t}>{t}</li>))}
+            </ul>
+          )}
+        </div>
+      ))}
+    </div>
+  );
 }
 
 // ---------------- Router hash -------------------------------------------

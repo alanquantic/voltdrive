@@ -24065,24 +24065,6 @@
           roof: m.key === "halcon" && config.solar ? "Techo solar" : "Est\xE1ndar",
           packages: [],
           selectedAccessories: []
-        }
-      }
-    ), /* @__PURE__ */ import_react2.default.createElement(
-      QuoteModalTrigger,
-      {
-        form: leadForm,
-        setForm: (f) => {
-          setLeadForm({ ...leadForm, type: "Compra" });
-          return setLeadForm;
-        },
-        configuration: {
-          model: m.name,
-          version: "",
-          color: config.color,
-          seats: config.seat,
-          roof: m.key === "halcon" && config.solar ? "Techo solar" : "Est\xE1ndar",
-          packages: [],
-          selectedAccessories: []
         },
         label: "Quiero estrenar"
       }
@@ -24096,7 +24078,7 @@
         imagesByColorSeat: m.imagesByColorSeat,
         onChange: (cfg) => setConfig(cfg)
       }
-    )))), /* @__PURE__ */ import_react2.default.createElement(Section, { id: "resumen", title: "Resumen r\xE1pido" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4" }, m.highlights.map((h) => /* @__PURE__ */ import_react2.default.createElement("div", { key: h.title, className: "rounded-3xl border border-white/10 bg-white/5 p-5" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "mb-2 inline-flex items-center gap-2 text-emerald-300" }, h.icon, /* @__PURE__ */ import_react2.default.createElement("span", { className: "font-semibold text-white" }, h.title)), /* @__PURE__ */ import_react2.default.createElement("p", { className: "text-white/70" }, h.text))))), /* @__PURE__ */ import_react2.default.createElement(Section, { id: "especificaciones", title: "Especificaciones t\xE9cnicas", subtitle: "Valores sujetos a cambio seg\xFAn lote y paquete." }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "grid grid-cols-1 gap-6 lg:grid-cols-3" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "lg:col-span-2" }, /* @__PURE__ */ import_react2.default.createElement(SpecsTable, { specs: m.specs })), /* @__PURE__ */ import_react2.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "rounded-3xl border border-white/10 bg-white/5 p-5" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "mb-2 text-sm text-white/60" }, "Paquetes"), /* @__PURE__ */ import_react2.default.createElement("ul", { className: "list-disc pl-5 text-white/80 text-sm space-y-1" }, (m.key === "aurora" ? [
+    )))), /* @__PURE__ */ import_react2.default.createElement(Section, { id: "resumen", title: "Resumen r\xE1pido" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4" }, m.highlights.map((h) => /* @__PURE__ */ import_react2.default.createElement("div", { key: h.title, className: "rounded-3xl border border-white/10 bg-white/5 p-5" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "mb-2 inline-flex items-center gap-2 text-emerald-300" }, h.icon, /* @__PURE__ */ import_react2.default.createElement("span", { className: "font-semibold text-white" }, h.title)), /* @__PURE__ */ import_react2.default.createElement("p", { className: "text-white/70" }, h.text))))), /* @__PURE__ */ import_react2.default.createElement(Section, { id: "especificaciones", title: "Especificaciones t\xE9cnicas", subtitle: "Valores sujetos a cambio seg\xFAn lote y paquete." }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "grid grid-cols-1 gap-6 lg:grid-cols-3" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "lg:col-span-2" }, /* @__PURE__ */ import_react2.default.createElement(SpecsTable, { specs: m.specs }), /* @__PURE__ */ import_react2.default.createElement(SpecAccordions, { m })), /* @__PURE__ */ import_react2.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "rounded-3xl border border-white/10 bg-white/5 p-5" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "mb-2 text-sm text-white/60" }, "Paquetes"), /* @__PURE__ */ import_react2.default.createElement("ul", { className: "list-disc pl-5 text-white/80 text-sm space-y-1" }, (m.key === "aurora" ? [
       "Base: LED completo, frenos disco F/R, cinturones, cargador a bordo, USB",
       "Tecnolog\xEDa: pantalla 12.3\u201D, c\xE1mara de reversa, conectividad smartphone",
       "Confort: sound bar, luz ambiente en techo, cargador inal\xE1mbrico, tapicer\xEDa premium"
@@ -24142,6 +24124,57 @@
       el.style.opacity = "0";
       setTimeout(() => el.remove(), 300);
     }, 1800);
+  }
+  function SpecAccordions({ m }) {
+    const groups = m.key === "aurora" ? [
+      { t: "Dimensiones y pesos", c: [
+        "3045 \xD7 1400 \xD7 1990\u20132030 mm \u2022 Eje \u2248 1660 mm \u2022 Altura libre \u2248 150 mm",
+        "Radio de giro \u2248 3.5 m \u2022 Peso \u2248 550\u2013560 kg \u2022 Carga \xFAtil \u2248 360 kg"
+      ] },
+      { t: "Tren motriz y electricidad", c: [
+        "Motor AC 72V 6.3 kW \u2022 Controlador 72V 350A",
+        "Bater\xEDa LiFePO\u2084 73.6V 105Ah (\u22487.7 kWh) con BMS \u2022 Cargador 72V 20A",
+        "Tiempo de carga 6\u20138 h \u2022 DC/DC 72\u219212V 300W"
+      ] },
+      { t: "Seguridad y confort", c: [
+        "Frenos de disco F/R + EPB \u2022 Cinturones retr\xE1ctiles \u2022 Defensas",
+        "Asientos espuma moldeada con descansabrazos"
+      ] },
+      { t: "Tecnolog\xEDa y conectividad", c: [
+        "Pantalla TFT 12.3\u201D (paquete Tecnolog\xEDa) \u2022 C\xE1mara de reversa",
+        "Bluetooth/CarPlay/Android Auto (seg\xFAn paquete)"
+      ] },
+      { t: "Mantenimiento y legales", c: [
+        "Diario: presi\xF3n de llantas y nivel de carga",
+        "Mensual: frenos/suspensi\xF3n \u2022 Semestral: BMS/bater\xEDa",
+        "Especificaciones sujetas a cambio sin previo aviso"
+      ] }
+    ] : [
+      { t: "Dimensiones y pesos", c: [
+        "\u2248 2900 \xD7 1390 \xD7 2030 mm \u2022 Eje \u2248 1660 mm \u2022 Altura 145 mm",
+        "Radio de giro \u2264 3.5 m \u2022 Peso \u2248 550 kg \u2022 Carga \xFAtil \u2248 360 kg"
+      ] },
+      { t: "Tren motriz y electricidad", c: [
+        "Motor AC 48V 5 kW \u2022 Controlador 48V 350A",
+        "Bater\xEDa LiFePO\u2084 48V 105Ah \u2022 Cargador 48V 20A (110\u2013240V)",
+        "Tiempo de carga 6\u20138 h \u2022 DC/DC 48\u219212V 300W"
+      ] },
+      { t: "Seguridad y confort", c: [
+        "Frenos de disco F/R + EPB \u2022 Cinturones retr\xE1ctiles",
+        "Asientos negro o marr\xF3n toffee con descansabrazos"
+      ] },
+      { t: "Tecnolog\xEDa y conectividad", c: [
+        "Push\u2011to\u2011start con Bluetooth y NFC \u2022 Modos ECO/SPORT",
+        "Cargas USB/USB\u2011C \u2022 Techo solar opcional (+~20% autonom\xEDa)"
+      ] },
+      { t: "Mantenimiento y legales", c: [
+        "Diario: presi\xF3n de llantas y nivel de carga",
+        "Mensual: frenos/suspensi\xF3n \u2022 Semestral: BMS/bater\xEDa",
+        "Especificaciones sujetas a cambio sin previo aviso"
+      ] }
+    ];
+    const [open, setOpen] = import_react2.default.useState(null);
+    return /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-6 space-y-3" }, groups.map((g, i) => /* @__PURE__ */ import_react2.default.createElement("div", { key: g.t, className: "overflow-hidden rounded-2xl border border-white/10" }, /* @__PURE__ */ import_react2.default.createElement("button", { onClick: () => setOpen(open === i ? null : i), className: "flex w-full items-center justify-between bg-white/5 px-4 py-3 text-left" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "font-medium text-white" }, g.t), /* @__PURE__ */ import_react2.default.createElement(IChevron, { className: `transition ${open === i ? "rotate-90" : ""}` })), open === i && /* @__PURE__ */ import_react2.default.createElement("ul", { className: "space-y-1 px-4 pb-4 text-sm text-white/80 list-disc pl-6" }, g.c.map((t) => /* @__PURE__ */ import_react2.default.createElement("li", { key: t }, t))))));
   }
   function getRouteFromHash() {
     const h = (window.location.hash || "").toLowerCase();

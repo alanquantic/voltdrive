@@ -551,8 +551,9 @@ function Accessories({ items }) {
 
 // ---------------- Cards Home ---------------------------------------------
 function ModelCard({ m }) {
+  const go = ()=> { window.location.hash = `#/${m.key}`; setTimeout(()=> window.scrollTo({ top: 0, behavior: 'instant' }), 0); };
   return (
-    <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur vd-fade">
+    <div onClick={go} role="button" tabIndex={0} onKeyDown={(e)=>{ if(e.key==='Enter') go(); }} className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur vd-fade cursor-pointer">
       <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-black/20 to-black/10"/>
       <img src={m.hero} alt={m.name} className="h-64 w-full object-cover" />
       <div className="space-y-3 p-6">
@@ -569,12 +570,9 @@ function ModelCard({ m }) {
           <li className="flex items-center gap-2"><ISettings/> {m.specs['Suspensión']}</li>
         </ul>
         <div className="pt-4">
-          <button
-            onClick={()=>{ window.location.hash = `#/${m.key}`; setTimeout(()=> window.scrollTo({ top: 0, behavior: 'instant' }), 0); }}
-            className="group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-4 py-2 font-medium text-emerald-950 transition hover:bg-emerald-300"
-          >
+          <span className="inline-flex items-center gap-2 rounded-full bg-emerald-400 px-4 py-2 font-medium text-emerald-950 transition group-hover:bg-emerald-300">
             Ver {m.name} <IChevron/>
-          </button>
+          </span>
         </div>
       </div>
     </div>
@@ -790,7 +788,8 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
     if (invalid) return;
     setSending(true);
     try {
-      const r = await fetch('/api/quote', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ customer: form, configuration }) });
+      const endpoint = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app') ? '/api/quote' : '/api/quote';
+      const r = await fetch(endpoint, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ customer: form, configuration }) });
       if (!r.ok) throw new Error('Solicitud fallida');
       setOpen(false);
       showToast('Solicitud enviada. Te contactaremos pronto.');
@@ -807,7 +806,7 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
       {open && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="quote-title">
           <div className="absolute inset-0 bg-black/60" onClick={()=>!sending && setOpen(false)}></div>
-          <div className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-white/10 bg-black/80 p-6 text-white backdrop-blur" tabIndex={-1}>
+          <div className="relative z-10 w-full max-w-3xl max-h-[92vh] overflow-y-auto rounded-3xl border border-white/10 bg-black/80 p-6 text-white backdrop-blur" tabIndex={-1}>
             <h3 id="quote-title" className="text-xl font-semibold">Resumen y datos para cotización</h3>
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="rounded-2xl border border-white/10 p-4">
@@ -932,8 +931,8 @@ function HomePage() {
               Carritos eléctricos silenciosos, cómodos y personalizables. Ideales para hoteles, recorridos turísticos, eventos, campus y comunidades.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <a href="#configurador" className="group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300">
-                Arma tu Volt Drive <IChevron/>
+          <a href="#configurador" className="group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300">
+                Solicitar cotización <IChevron/>
               </a>
               <a href="#modelos" className="rounded-full border border-white/15 bg-white/5 px-5 py-3 font-medium text-white/90 backdrop-blur hover:bg-white/10">Ver modelos</a>
             </div>

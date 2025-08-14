@@ -24188,6 +24188,29 @@
     (0, import_react2.useEffect)(() => {
       const onHash = () => setRoute(getRouteFromHash());
       window.addEventListener("hashchange", onHash);
+      const updateOg = (r) => {
+        const m = r === "aurora" ? MODELS.aurora : r === "halcon" ? MODELS.halcon : null;
+        const title = m ? `Volt Drive \u2014 ${m.name}` : "Volt Drive \u2014 Movilidad el\xE9ctrica premium";
+        const desc = m ? m.tagline || "Carritos el\xE9ctricos personalizables" : "Carritos el\xE9ctricos personalizables";
+        const img = m ? m.hero || "/assets/models/aurora/hero.webp" : "/assets/models/aurora/hero.webp";
+        const set = (p, c) => {
+          let el = document.querySelector(`meta[property='${p}']`) || document.querySelector(`meta[name='${p}']`);
+          if (!el) {
+            el = document.createElement("meta");
+            if (p.startsWith("og:")) el.setAttribute("property", p);
+            else el.setAttribute("name", p);
+            document.head.appendChild(el);
+          }
+          el.setAttribute("content", c);
+        };
+        set("og:title", title);
+        set("twitter:title", title);
+        set("og:description", desc);
+        set("twitter:description", desc);
+        set("og:image", img);
+        set("twitter:image", img);
+      };
+      updateOg(getRouteFromHash());
       return () => window.removeEventListener("hashchange", onHash);
     }, []);
     if (route === "faq") return /* @__PURE__ */ import_react2.default.createElement(FAQPage, null);

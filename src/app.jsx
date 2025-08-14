@@ -1379,6 +1379,22 @@ function App() {
   useEffect(() => {
     const onHash = () => setRoute(getRouteFromHash());
     window.addEventListener('hashchange', onHash);
+    // Actualiza OG/Twitter dinámico por modelo al cambiar ruta (best effort en SPA)
+    const updateOg = (r)=>{
+      const m = r==='aurora'? MODELS.aurora : r==='halcon'? MODELS.halcon : null;
+      const title = m? `Volt Drive — ${m.name}` : 'Volt Drive — Movilidad eléctrica premium';
+      const desc = m? (m.tagline || 'Carritos eléctricos personalizables') : 'Carritos eléctricos personalizables';
+      const img = m? (m.hero || '/assets/models/aurora/hero.webp') : '/assets/models/aurora/hero.webp';
+      const set = (p,c)=>{
+        let el = document.querySelector(`meta[property='${p}']`) || document.querySelector(`meta[name='${p}']`);
+        if (!el) { el = document.createElement('meta'); if (p.startsWith('og:')) el.setAttribute('property', p); else el.setAttribute('name', p); document.head.appendChild(el); }
+        el.setAttribute('content', c);
+      };
+      set('og:title', title); set('twitter:title', title);
+      set('og:description', desc); set('twitter:description', desc);
+      set('og:image', img); set('twitter:image', img);
+    };
+    updateOg(getRouteFromHash());
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 

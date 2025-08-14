@@ -68,7 +68,7 @@ export default async function handler(req, res) {
       const siteBase = process.env.SITE_BASE_URL || 'https://voltdrive.vercel.app';
       const ackHtml = `
         <div style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial;line-height:1.6;color:#0f172a">
-          <div style="padding:16px 0 8px 0"><img src="${siteBase}/assets/brand/logo.png" alt="Volt Drive" style="height:36px"/></div>
+          <div style="padding:16px 0 8px 0"><img src="${siteBase}/assets/home/LOGOVOLTDRIVE.png" alt="Volt Drive" style="height:36px"/></div>
           <h2 style="margin:0 0 12px 0">¡Gracias por tu interés!</h2>
           <p style="margin:0 0 10px 0;color:#334155">Hemos recibido tu solicitud de cotización y nuestro equipo te contactará a la brevedad.</p>
           <div style="margin-top:12px;padding:12px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc">

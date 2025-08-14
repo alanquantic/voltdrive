@@ -89,7 +89,7 @@ function Header() {
     <header className="sticky top-0 z-40 border-b border-white/10 bg-black/40 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         <a href="#/about" className="flex items-center gap-3" aria-label="Ir al inicio">
-          <img src="/assets/home/LOGO_VOLT_DRIVE.png" alt="Volt Drive" className="h-6 w-6"/>
+          <img src="/assets/home/LOGOVOLTDRIVE.png" alt="Volt Drive" className="h-6 w-6"/>
           <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-lg font-semibold text-transparent">Volt Drive</span>
         </a>
         <nav className="hidden gap-6 md:flex">
@@ -1217,14 +1217,14 @@ function ModelPage({ m }) {
             </div>
             {/* Brand card con logo */}
             <a href="#/about" className="group block overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-0">
-              <div className="relative flex h-44 items-center justify-center md:h-56">
+              <div className="relative flex h-56 items-center justify-center md:h-72">
                 <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: 'radial-gradient(60% 60% at 50% 40%, rgba(16,185,129,0.18), rgba(0,0,0,0))' }}/>
                 <img
-                  src="/assets/home/LOGO_VOLT_DRIVE.png"
+                  src="/assets/home/LOGOVOLTDRIVE.png"
                   alt="Volt Drive"
                   width="400"
                   height="400"
-                  className="relative h-20 w-20 md:h-24 md:w-24 transition-transform duration-300 group-hover:scale-105"
+                  className="relative h-28 w-28 md:h-40 md:w-40 transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
             </a>

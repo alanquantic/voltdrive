@@ -1215,6 +1215,17 @@ function ModelPage({ m }) {
                 Voltaje: 110–240V AC • Tiempo: 6–8 h • EVSE EP3 16A 5 m (IP44)
               </div>
             </div>
+            {/* Brand card con logo */}
+            <a href="#/about" className="group block overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-0">
+              <div className="relative flex h-44 items-center justify-center md:h-56">
+                <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: 'radial-gradient(60% 60% at 50% 40%, rgba(16,185,129,0.18), rgba(0,0,0,0))' }}/>
+                <img
+                  src="/assets/brand/logo.png"
+                  alt="Volt Drive"
+                  className="relative h-14 w-auto md:h-20 transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+            </a>
           </div>
         </div>
       </Section>

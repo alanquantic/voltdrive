@@ -11,9 +11,10 @@
     "node": ">=18.17.0"
   },
   "scripts": {
-    "build": "esbuild src/app.jsx --bundle --outfile=public/bundle.js --loader:.jsx=jsx",
+    "build": "esbuild src/app.jsx --bundle --outfile=public/bundle.js --loader:.jsx=jsx --minify --tree-shaking=true --target=es2020",
+    "build:dev": "esbuild src/app.jsx --bundle --outfile=public/bundle.js --loader:.jsx=jsx --sourcemap",
     "start": "node server.js",
-    "dev": "npm run build && node server.js"
+    "dev": "npm run build:dev && node server.js"
   },
   "dependencies": {
     "dotenv": "^17.2.1",

@@ -23854,13 +23854,42 @@
       tagline: "Eficiencia y versatilidad para rutas y tours",
       hero: "/assets/models/halcon/hero.webp",
       gallery: [
-        "/assets/models/halcon/hero.webp",
-        "/assets/models/halcon/hero.webp",
-        "/assets/models/halcon/hero.webp",
-        "/assets/models/halcon/hero.webp",
-        "/assets/models/halcon/hero.webp"
+        "/assets/models/halcon/galeria_halcon0.webp",
+        "/assets/models/halcon/galeria_halcon1.webp",
+        "/assets/models/halcon/galeria_halcon2.webp",
+        "/assets/models/halcon/galeria_halcon3.webp",
+        "/assets/models/halcon/galeria_halcon4.webp"
       ],
-      colors: ["Gris", "Blanco", "Rojo", "Azul", "Negro"],
+      imagesByColor: {
+        "Blanco": "/assets/models/halcon/halcon48-blanco.webp",
+        "Azul": "/assets/models/halcon/halcon48-azul.webp",
+        "Negro": "/assets/models/halcon/halcon48-negro.webp",
+        "Gris": "/assets/models/halcon/halcon48-gris.webp",
+        "Rojo": "/assets/models/halcon/halcon48-rojo.webp"
+      },
+      imagesByColorSeat: {
+        "Blanco": {
+          "Negro": "/assets/models/halcon/halcon48-blanco-asientosnegros.webp",
+          "Marr\xF3n toffee": "/assets/models/halcon/halcon48-blanco-asientosmarron.webp"
+        },
+        "Azul": {
+          "Negro": "/assets/models/halcon/halcon48-azul-asientosnegros.webp",
+          "Marr\xF3n toffee": "/assets/models/halcon/halcon48-azul-asientosmarron.webp"
+        },
+        "Negro": {
+          "Negro": "/assets/models/halcon/halcon48-negro-asientosnegros.webp",
+          "Marr\xF3n toffee": "/assets/models/halcon/halcon48-negro-asientosmarron.webp"
+        },
+        "Gris": {
+          "Negro": "/assets/models/halcon/halcon48-gris-asientosnegros.webp",
+          "Marr\xF3n toffee": "/assets/models/halcon/halcon48-gris-asientosmarron.webp"
+        },
+        "Rojo": {
+          "Negro": "/assets/models/halcon/halcon48-rojo-asientosnegros.webp",
+          "Marr\xF3n toffee": "/assets/models/halcon/halcon48-rojo-asientosmarron.webp"
+        }
+      },
+      colors: ["Blanco", "Azul", "Negro", "Gris", "Rojo"],
       seats: ["Negro", "Marr\xF3n toffee"],
       variants: [
         { name: "Rider (urbano)", details: ["Direcci\xF3n suave para recorridos largos", 'Neum\xE1tico mixto 14"', "DRL y faro LED"] },

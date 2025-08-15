@@ -1,0 +1,27 @@
+{
+  "name": "Volt Drive — Movilidad Eléctrica Premium",
+  "short_name": "Volt Drive",
+  "description": "Carritos eléctricos personalizables para golf, turismo y eventos",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0E1116",
+  "theme_color": "#10b981",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/home/LOGOVOLTDRIVE.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/home/LOGOVOLTDRIVE.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "travel"],
+  "lang": "es-MX",
+  "dir": "ltr"
+}

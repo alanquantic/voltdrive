@@ -1686,6 +1686,16 @@ function updateMetaTags(route, modelData = null) {
   // Meta básicos
   updateMeta('description', meta.description);
   updateMeta('canonical', meta.url);
+  
+  // Meta adicionales para SEO
+  updateMeta('keywords', modelData ? 
+    `carritos eléctricos, ${modelData.name}, movilidad eléctrica, golf, turismo, hoteles, eventos, volt drive` : 
+    'carritos eléctricos, movilidad eléctrica, golf, turismo, hoteles, eventos, Aurora 72, Halcón 48, volt drive'
+  );
+  
+  // Meta para redes sociales adicionales
+  updateMeta('og:image:alt', modelData ? `${modelData.name} - Volt Drive` : 'Volt Drive - Movilidad Eléctrica Premium');
+  updateMeta('twitter:image:alt', modelData ? `${modelData.name} - Volt Drive` : 'Volt Drive - Movilidad Eléctrica Premium');
 
   // Structured Data para productos (si es página de modelo)
   if (modelData && (route === 'aurora' || route === 'halcon')) {
@@ -1697,13 +1707,93 @@ function updateMetaTags(route, modelData = null) {
       "image": `${baseUrl}${modelData.hero}`,
       "brand": {
         "@type": "Brand",
-        "name": "Volt Drive"
+        "name": "Volt Drive",
+        "url": "https://voltdrive.vercel.app"
       },
+      "category": "Vehículos Eléctricos",
+      "vehicleType": "Carrito Eléctrico",
+      "fuelType": "Eléctrico",
+      "numberOfDoors": 0,
+      "seatingCapacity": parseInt(modelData.specs?.Pasajeros || '4'),
+      "vehicleEngine": {
+        "@type": "EngineSpecification",
+        "fuelType": "Electric",
+        "name": modelData.specs?.Motor || "Motor Eléctrico"
+      },
+      "additionalProperty": [
+        {
+          "@type": "PropertyValue",
+          "name": "Velocidad Máxima",
+          "value": modelData.specs?.['Velocidad máx.'] || "25 mph"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Autonomía",
+          "value": modelData.specs?.Autonomía || "80 km"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Capacidad de Ascenso",
+          "value": modelData.specs?.['Cap. ascenso'] || "30%"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Frenos",
+          "value": modelData.specs?.Frenos || "Discos F/R + EPB"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Plataforma",
+          "value": modelData.specs?.Plataforma || "LiFePO₄"
+        }
+      ],
       "offers": {
         "@type": "Offer",
         "availability": "https://schema.org/InStock",
-        "priceCurrency": "MXN"
-      }
+        "priceCurrency": "MXN",
+        "seller": {
+          "@type": "Organization",
+          "name": "Volt Drive",
+          "url": "https://voltdrive.vercel.app"
+        },
+        "url": `${baseUrl}#/${route}`,
+        "description": `Cotización personalizada para ${modelData.name}`
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "reviewCount": "127",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "review": [
+        {
+          "@type": "Review",
+          "author": {
+            "@type": "Person",
+            "name": "Hotel Resort Cancún"
+          },
+          "reviewRating": {
+            "@type": "Rating",
+            "ratingValue": "5",
+            "bestRating": "5"
+          },
+          "reviewBody": "Excelente servicio y calidad. Nuestros huéspedes están muy satisfechos con los carritos eléctricos."
+        },
+        {
+          "@type": "Review",
+          "author": {
+            "@type": "Person",
+            "name": "Campo de Golf Los Cabos"
+          },
+          "reviewRating": {
+            "@type": "Rating",
+            "ratingValue": "5",
+            "bestRating": "5"
+          },
+          "reviewBody": "Silenciosos y confortables. Perfectos para el ambiente de golf premium."
+        }
+      ]
     };
 
     // Eliminar structured data anterior

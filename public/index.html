@@ -3,18 +3,77 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Volt Drive</title>
-    <meta name="description" content="Volt Drive — Movilidad eléctrica premium para golf, turismo y hospitalidad" />
-    <!-- OG genérico como fallback para la SPA -->
+    
+    <!-- Favicon y App Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/home/LOGOVOLTDRIVE.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/home/LOGOVOLTDRIVE.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/home/LOGOVOLTDRIVE.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#10b981">
+    <meta name="msapplication-TileColor" content="#10b981">
+    
+    <!-- SEO Meta Tags Base -->
+    <title>Volt Drive — Movilidad eléctrica premium</title>
+    <meta name="description" content="Carritos eléctricos silenciosos, cómodos y personalizables para hoteles, tours, eventos, campus y comunidades. Aurora 72 y Halcón 48." />
+    <meta name="keywords" content="carritos eléctricos, movilidad eléctrica, golf, turismo, hoteles, eventos, Aurora 72, Halcón 48, volt drive" />
+    <meta name="author" content="Volt Drive" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://voltdrive.vercel.app" />
+    
+    <!-- Open Graph Base -->
     <meta property="og:site_name" content="Volt Drive" />
     <meta property="og:title" content="Volt Drive — Movilidad eléctrica premium" />
     <meta property="og:description" content="Carritos eléctricos silenciosos, cómodos y personalizables para hoteles, tours, eventos y comunidades." />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="/assets/home/LOGOVOLTDRIVE.png" />
+    <meta property="og:image" content="https://voltdrive.vercel.app/assets/home/LOGOVOLTDRIVE.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="https://voltdrive.vercel.app" />
+    <meta property="og:locale" content="es_MX" />
+    
+    <!-- Twitter Card Base -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Volt Drive — Movilidad eléctrica premium" />
     <meta name="twitter:description" content="Carritos eléctricos silenciosos, cómodos y personalizables." />
-    <meta name="twitter:image" content="/assets/home/LOGOVOLTDRIVE.png" />
+    <meta name="twitter:image" content="https://voltdrive.vercel.app/assets/home/LOGOVOLTDRIVE.png" />
+    <meta name="twitter:site" content="@voltdrive" />
+    
+    <!-- Schema.org Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Volt Drive",
+      "url": "https://voltdrive.vercel.app",
+      "logo": "https://voltdrive.vercel.app/assets/home/LOGOVOLTDRIVE.png",
+      "description": "Movilidad eléctrica premium para golf, turismo y hospitalidad",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "email": "contacto@voltdrive.mx"
+      },
+      "sameAs": [
+        "https://voltdrive.vercel.app"
+      ]
+    }
+    </script>
+    
+    <!-- Schema.org WebSite -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Volt Drive",
+      "url": "https://voltdrive.vercel.app",
+      "description": "Carritos eléctricos personalizables para golf, turismo y eventos",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://voltdrive.vercel.app#configurador",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body>

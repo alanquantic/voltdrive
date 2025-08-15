@@ -98,7 +98,7 @@ function LazyImage({ src, alt, className, placeholder = "data:image/svg+xml,%3Cs
   );
 }
 
-// ---------------- Loading Component --------------------------------------
+// ---------------- Loading & Error Components -----------------------------
 function PageLoader() {
   return (
     <div className="flex min-h-screen items-center justify-center">
@@ -108,6 +108,63 @@ function PageLoader() {
       </div>
     </div>
   );
+}
+
+function SkeletonLoader({ className = "h-64 w-full" }) {
+  return (
+    <div className={`animate-pulse rounded-3xl bg-white/10 ${className}`}>
+      <div className="h-full w-full bg-gradient-to-r from-white/5 via-white/10 to-white/5"></div>
+    </div>
+  );
+}
+
+function ErrorBoundary({ children }) {
+  const [hasError, setHasError] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const handleError = (error) => {
+      console.error('Error capturado:', error);
+      setError(error);
+      setHasError(true);
+    };
+
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleError);
+
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleError);
+    };
+  }, []);
+
+  if (hasError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <div className="text-center">
+          <div className="mb-4 text-4xl">⚠️</div>
+          <h2 className="mb-2 text-xl font-semibold text-white">Algo salió mal</h2>
+          <p className="mb-4 text-white/60">Hubo un error inesperado. Por favor, recarga la página.</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="rounded-full bg-emerald-400 px-4 py-2 text-emerald-950 hover:bg-emerald-300"
+          >
+            Recargar página
+          </button>
+          {error && (
+            <details className="mt-4 text-left">
+              <summary className="cursor-pointer text-sm text-white/40">Ver detalles técnicos</summary>
+              <pre className="mt-2 text-xs text-white/60 overflow-auto max-w-md">
+                {error.toString()}
+              </pre>
+            </details>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return children;
 }
 
 // ---------------- Helpers de UI -----------------------------------------
@@ -855,6 +912,7 @@ function AdvancedConfigurator() {
 function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar cotización' }){
   const [open, setOpen] = useState(false);
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState(null);
 
   const invalid = !form.name || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email||'') || !form.phone || !form.city;
 
@@ -880,15 +938,30 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
   async function submit(){
     if (invalid) return;
     setSending(true);
+    setError(null);
+    
     try {
       const endpoint = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app') ? '/api/quote' : '/api/quote';
-      const r = await fetch(endpoint, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ customer: form, configuration }) });
-      if (!r.ok) throw new Error('Solicitud fallida');
+      const r = await fetch(endpoint, { 
+        method:'POST', 
+        headers:{'Content-Type':'application/json'}, 
+        body: JSON.stringify({ customer: form, configuration }) 
+      });
+      
+      if (!r.ok) {
+        const errorData = await r.json().catch(() => ({}));
+        throw new Error(errorData.error || `Error ${r.status}: ${r.statusText}`);
+      }
+      
       setOpen(false);
       showToast('Solicitud enviada. Te contactaremos pronto.');
     } catch(e){
-      showToast('No se pudo enviar la solicitud. Inténtalo más tarde.');
-    } finally { setSending(false); }
+      console.error('Error en cotización:', e);
+      setError(e.message || 'No se pudo enviar la solicitud. Inténtalo más tarde.');
+      showToast('Error: ' + (e.message || 'No se pudo enviar la solicitud'));
+    } finally { 
+      setSending(false); 
+    }
   }
 
   return (
@@ -959,9 +1032,24 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
                 </div>
               </div>
             </div>
+            {error && (
+              <div className="mt-4 rounded-2xl border border-rose-500/20 bg-rose-500/10 p-3">
+                <div className="flex items-center gap-2 text-rose-300">
+                  <span>⚠️</span>
+                  <span className="text-sm">{error}</span>
+                </div>
+              </div>
+            )}
             <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
               <button disabled={sending} onClick={()=>setOpen(false)} className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-white/90 backdrop-blur hover:bg-white/10">Cancelar</button>
-              <button disabled={sending||invalid} onClick={submit} className={`rounded-full px-5 py-2 font-medium ${sending||invalid? 'bg-emerald-400/50 text-emerald-950/80' : 'bg-emerald-400 text-emerald-950 hover:bg-emerald-300'}`}>{sending? 'Enviando…' : 'Enviar cotización'}</button>
+              <button disabled={sending||invalid} onClick={submit} className={`rounded-full px-5 py-2 font-medium ${sending||invalid? 'bg-emerald-400/50 text-emerald-950/80' : 'bg-emerald-400 text-emerald-950 hover:bg-emerald-300'}`}>
+                {sending ? (
+                  <span className="flex items-center gap-2">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-950 border-t-transparent"></div>
+                    Enviando…
+                  </span>
+                ) : 'Enviar cotización'}
+              </button>
             </div>
           </div>
         </div>
@@ -1678,23 +1766,7 @@ function App() {
   return <HomePage/>;
 }
 
-class ErrorBoundary extends React.Component {
-  constructor(props){ super(props); this.state = { hasError: false, error: null }; }
-  static getDerivedStateFromError(error){ return { hasError: true, error }; }
-  componentDidCatch(error, info){ console.error('VoltDrive ErrorBoundary', error, info); }
-  render(){
-    if (this.state.hasError) {
-      return (
-        <div style={{ padding: 16, color: '#fff', background: '#0E1116' }}>
-          <h2 style={{ fontWeight: 700 }}>Se produjo un error en la UI</h2>
-          <pre style={{ whiteSpace: 'pre-wrap', color: '#fca5a5' }}>{String(this.state.error)}</pre>
-          <p style={{ color: '#9ca3af' }}>Revisa la consola del navegador para más detalles.</p>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
+
 
 const root = createRoot(document.getElementById('root'));
 console.log('Volt Drive boot: render App');

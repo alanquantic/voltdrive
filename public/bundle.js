@@ -23763,6 +23763,34 @@
       }
     ), !isLoaded && isInView && /* @__PURE__ */ import_react2.default.createElement("div", { className: "absolute inset-0 flex items-center justify-center bg-gray-800" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "h-8 w-8 animate-spin rounded-full border-2 border-emerald-400 border-t-transparent" })));
   }
+  function ErrorBoundary({ children }) {
+    const [hasError, setHasError] = (0, import_react2.useState)(false);
+    const [error, setError] = (0, import_react2.useState)(null);
+    (0, import_react2.useEffect)(() => {
+      const handleError = (error2) => {
+        console.error("Error capturado:", error2);
+        setError(error2);
+        setHasError(true);
+      };
+      window.addEventListener("error", handleError);
+      window.addEventListener("unhandledrejection", handleError);
+      return () => {
+        window.removeEventListener("error", handleError);
+        window.removeEventListener("unhandledrejection", handleError);
+      };
+    }, []);
+    if (hasError) {
+      return /* @__PURE__ */ import_react2.default.createElement("div", { className: "flex min-h-screen items-center justify-center p-4" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "text-center" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "mb-4 text-4xl" }, "\u26A0\uFE0F"), /* @__PURE__ */ import_react2.default.createElement("h2", { className: "mb-2 text-xl font-semibold text-white" }, "Algo sali\xF3 mal"), /* @__PURE__ */ import_react2.default.createElement("p", { className: "mb-4 text-white/60" }, "Hubo un error inesperado. Por favor, recarga la p\xE1gina."), /* @__PURE__ */ import_react2.default.createElement(
+        "button",
+        {
+          onClick: () => window.location.reload(),
+          className: "rounded-full bg-emerald-400 px-4 py-2 text-emerald-950 hover:bg-emerald-300"
+        },
+        "Recargar p\xE1gina"
+      ), error && /* @__PURE__ */ import_react2.default.createElement("details", { className: "mt-4 text-left" }, /* @__PURE__ */ import_react2.default.createElement("summary", { className: "cursor-pointer text-sm text-white/40" }, "Ver detalles t\xE9cnicos"), /* @__PURE__ */ import_react2.default.createElement("pre", { className: "mt-2 text-xs text-white/60 overflow-auto max-w-md" }, error.toString()))));
+    }
+    return children;
+  }
   var Pill = ({ children }) => /* @__PURE__ */ import_react2.default.createElement("span", { className: "inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs text-white/90 backdrop-blur" }, children);
   var Section = ({ id, title, subtitle, children }) => /* @__PURE__ */ import_react2.default.createElement("section", { id, className: "relative mx-auto max-w-7xl px-4 py-16 vd-fade" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react2.default.createElement("h2", { className: "text-3xl md:text-4xl font-semibold tracking-tight text-white" }, title), subtitle && /* @__PURE__ */ import_react2.default.createElement("p", { className: "mt-2 max-w-3xl text-white/70 leading-relaxed" }, subtitle)), children);
   function GradientBG() {
@@ -24042,6 +24070,7 @@
   function QuoteModalTrigger({ form, setForm, configuration, label = "Solicitar cotizaci\xF3n" }) {
     const [open, setOpen] = (0, import_react2.useState)(false);
     const [sending, setSending] = (0, import_react2.useState)(false);
+    const [error, setError] = (0, import_react2.useState)(null);
     const invalid = !form.name || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email || "") || !form.phone || !form.city;
     (0, import_react2.useEffect)(() => {
       if (!open) return;
@@ -24064,14 +24093,24 @@
     async function submit() {
       if (invalid) return;
       setSending(true);
+      setError(null);
       try {
         const endpoint = typeof window !== "undefined" && window.location.hostname.includes("vercel.app") ? "/api/quote" : "/api/quote";
-        const r = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ customer: form, configuration }) });
-        if (!r.ok) throw new Error("Solicitud fallida");
+        const r = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ customer: form, configuration })
+        });
+        if (!r.ok) {
+          const errorData = await r.json().catch(() => ({}));
+          throw new Error(errorData.error || `Error ${r.status}: ${r.statusText}`);
+        }
         setOpen(false);
         showToast("Solicitud enviada. Te contactaremos pronto.");
       } catch (e) {
-        showToast("No se pudo enviar la solicitud. Int\xE9ntalo m\xE1s tarde.");
+        console.error("Error en cotizaci\xF3n:", e);
+        setError(e.message || "No se pudo enviar la solicitud. Int\xE9ntalo m\xE1s tarde.");
+        showToast("Error: " + (e.message || "No se pudo enviar la solicitud"));
       } finally {
         setSending(false);
       }
@@ -24085,7 +24124,7 @@
         Techo: configuration.roof,
         Paquetes: (configuration.packages || []).join(", ") || "\u2014",
         Accesorios: (configuration.selectedAccessories || []).join(", ") || "\u2014"
-      }).map(([k, v]) => /* @__PURE__ */ import_react2.default.createElement("div", { key: k }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "text-white/60" }, k, ": "), /* @__PURE__ */ import_react2.default.createElement("span", { className: "text-white" }, v))))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "rounded-2xl border border-white/10 p-4" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "grid grid-cols-1 gap-2 text-sm" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-white/60" }, "Nombre y Apellidos"), /* @__PURE__ */ import_react2.default.createElement("input", { autoFocus: true, value: form.name, onChange: (e) => setForm({ ...form, name: e.target.value }), className: "mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none focus:ring-2 focus:ring-emerald-400" }), !form.name && /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-1 text-xs text-rose-300" }, "Campo requerido")), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-white/60" }, "Email"), /* @__PURE__ */ import_react2.default.createElement("input", { type: "email", value: form.email, onChange: (e) => setForm({ ...form, email: e.target.value }), className: "mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none focus:ring-2 focus:ring-emerald-400" }), form.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email) && /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-1 text-xs text-rose-300" }, "Email inv\xE1lido")), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-white/60" }, "Tel\xE9fono / WhatsApp"), /* @__PURE__ */ import_react2.default.createElement("input", { value: form.phone, onChange: (e) => setForm({ ...form, phone: e.target.value }), className: "mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none focus:ring-2 focus:ring-emerald-400" }), !form.phone && /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-1 text-xs text-rose-300" }, "Campo requerido")), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-white/60" }, "Intenci\xF3n"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-1 flex gap-2" }, ["Compra", "Renta", "Leasing"].map((t) => /* @__PURE__ */ import_react2.default.createElement("button", { key: t, type: "button", onClick: () => setForm({ ...form, type: t }), className: `rounded-full px-3 py-1.5 ${form.type === t ? "bg-emerald-400 text-emerald-950" : "bg-white/10 text-white"}` }, t)))), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-white/60" }, "Unidades"), /* @__PURE__ */ import_react2.default.createElement("input", { type: "number", min: "1", value: form.units, onChange: (e) => setForm({ ...form, units: e.target.value }), className: "mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none focus:ring-2 focus:ring-emerald-400" })), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-white/60" }, "Ciudad"), /* @__PURE__ */ import_react2.default.createElement("input", { value: form.city, onChange: (e) => setForm({ ...form, city: e.target.value }), className: "mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none focus:ring-2 focus:ring-emerald-400" }), !form.city && /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-1 text-xs text-rose-300" }, "Campo requerido")), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-white/60" }, "Pa\xEDs"), /* @__PURE__ */ import_react2.default.createElement("select", { value: form.country, onChange: (e) => setForm({ ...form, country: e.target.value }), className: "mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none" }, ["M\xE9xico", "Panam\xE1", "Costa Rica"].map((c) => /* @__PURE__ */ import_react2.default.createElement("option", { key: c, value: c }, c))))))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end" }, /* @__PURE__ */ import_react2.default.createElement("button", { disabled: sending, onClick: () => setOpen(false), className: "rounded-full border border-white/15 bg-white/5 px-4 py-2 text-white/90 backdrop-blur hover:bg-white/10" }, "Cancelar"), /* @__PURE__ */ import_react2.default.createElement("button", { disabled: sending || invalid, onClick: submit, className: `rounded-full px-5 py-2 font-medium ${sending || invalid ? "bg-emerald-400/50 text-emerald-950/80" : "bg-emerald-400 text-emerald-950 hover:bg-emerald-300"}` }, sending ? "Enviando\u2026" : "Enviar cotizaci\xF3n")))),
+      }).map(([k, v]) => /* @__PURE__ */ import_react2.default.createElement("div", { key: k }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "text-white/60" }, k, ": "), /* @__PURE__ */ import_react2.default.createElement("span", { className: "text-white" }, v))))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "rounded-2xl border border-white/10 p-4" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "grid grid-cols-1 gap-2 text-sm" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-white/60" }, "Nombre y Apellidos"), /* @__PURE__ */ import_react2.default.createElement("input", { autoFocus: true, value: form.name, onChange: (e) => setForm({ ...form, name: e.target.value }), className: "mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none focus:ring-2 focus:ring-emerald-400" }), !form.name && /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-1 text-xs text-rose-300" }, "Campo requerido")), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-white/60" }, "Email"), /* @__PURE__ */ import_react2.default.createElement("input", { type: "email", value: form.email, onChange: (e) => setForm({ ...form, email: e.target.value }), className: "mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none focus:ring-2 focus:ring-emerald-400" }), form.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email) && /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-1 text-xs text-rose-300" }, "Email inv\xE1lido")), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-white/60" }, "Tel\xE9fono / WhatsApp"), /* @__PURE__ */ import_react2.default.createElement("input", { value: form.phone, onChange: (e) => setForm({ ...form, phone: e.target.value }), className: "mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none focus:ring-2 focus:ring-emerald-400" }), !form.phone && /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-1 text-xs text-rose-300" }, "Campo requerido")), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-white/60" }, "Intenci\xF3n"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-1 flex gap-2" }, ["Compra", "Renta", "Leasing"].map((t) => /* @__PURE__ */ import_react2.default.createElement("button", { key: t, type: "button", onClick: () => setForm({ ...form, type: t }), className: `rounded-full px-3 py-1.5 ${form.type === t ? "bg-emerald-400 text-emerald-950" : "bg-white/10 text-white"}` }, t)))), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-white/60" }, "Unidades"), /* @__PURE__ */ import_react2.default.createElement("input", { type: "number", min: "1", value: form.units, onChange: (e) => setForm({ ...form, units: e.target.value }), className: "mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none focus:ring-2 focus:ring-emerald-400" })), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-white/60" }, "Ciudad"), /* @__PURE__ */ import_react2.default.createElement("input", { value: form.city, onChange: (e) => setForm({ ...form, city: e.target.value }), className: "mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none focus:ring-2 focus:ring-emerald-400" }), !form.city && /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-1 text-xs text-rose-300" }, "Campo requerido")), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-white/60" }, "Pa\xEDs"), /* @__PURE__ */ import_react2.default.createElement("select", { value: form.country, onChange: (e) => setForm({ ...form, country: e.target.value }), className: "mt-1 w-full rounded-xl bg-white/10 p-2.5 text-white outline-none" }, ["M\xE9xico", "Panam\xE1", "Costa Rica"].map((c) => /* @__PURE__ */ import_react2.default.createElement("option", { key: c, value: c }, c))))))), error && /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-4 rounded-2xl border border-rose-500/20 bg-rose-500/10 p-3" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "flex items-center gap-2 text-rose-300" }, /* @__PURE__ */ import_react2.default.createElement("span", null, "\u26A0\uFE0F"), /* @__PURE__ */ import_react2.default.createElement("span", { className: "text-sm" }, error))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end" }, /* @__PURE__ */ import_react2.default.createElement("button", { disabled: sending, onClick: () => setOpen(false), className: "rounded-full border border-white/15 bg-white/5 px-4 py-2 text-white/90 backdrop-blur hover:bg-white/10" }, "Cancelar"), /* @__PURE__ */ import_react2.default.createElement("button", { disabled: sending || invalid, onClick: submit, className: `rounded-full px-5 py-2 font-medium ${sending || invalid ? "bg-emerald-400/50 text-emerald-950/80" : "bg-emerald-400 text-emerald-950 hover:bg-emerald-300"}` }, sending ? /* @__PURE__ */ import_react2.default.createElement("span", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "h-4 w-4 animate-spin rounded-full border-2 border-emerald-950 border-t-transparent" }), "Enviando\u2026") : "Enviar cotizaci\xF3n")))),
       document.body
     ));
   }
@@ -24412,24 +24451,6 @@
     if (route === "configurador") return /* @__PURE__ */ import_react2.default.createElement(ConfiguratorPage, null);
     return /* @__PURE__ */ import_react2.default.createElement(HomePage, null);
   }
-  var ErrorBoundary = class extends import_react2.default.Component {
-    constructor(props) {
-      super(props);
-      this.state = { hasError: false, error: null };
-    }
-    static getDerivedStateFromError(error) {
-      return { hasError: true, error };
-    }
-    componentDidCatch(error, info) {
-      console.error("VoltDrive ErrorBoundary", error, info);
-    }
-    render() {
-      if (this.state.hasError) {
-        return /* @__PURE__ */ import_react2.default.createElement("div", { style: { padding: 16, color: "#fff", background: "#0E1116" } }, /* @__PURE__ */ import_react2.default.createElement("h2", { style: { fontWeight: 700 } }, "Se produjo un error en la UI"), /* @__PURE__ */ import_react2.default.createElement("pre", { style: { whiteSpace: "pre-wrap", color: "#fca5a5" } }, String(this.state.error)), /* @__PURE__ */ import_react2.default.createElement("p", { style: { color: "#9ca3af" } }, "Revisa la consola del navegador para m\xE1s detalles."));
-      }
-      return this.props.children;
-    }
-  };
   var root = (0, import_client2.createRoot)(document.getElementById("root"));
   console.log("Volt Drive boot: render App");
   root.render(

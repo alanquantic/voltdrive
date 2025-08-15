@@ -1178,7 +1178,8 @@ function ModelPage({ m }) {
                   color: config.color,
                   seats: config.seat,
                   roof: m.key==='halcon' && config.solar? 'Techo solar' : 'Estándar',
-                  packages: [], selectedAccessories: []
+                  packages: m.key==='halcon' && config.solar? ['Solar'] : [],
+                  selectedAccessories: []
                 }}
                 label="Quiero estrenar"
               />
@@ -1197,7 +1198,11 @@ function ModelPage({ m }) {
               onChange={(cfg)=> setConfig({ color: cfg.color, seat: cfg.seat, solar: cfg.solar })}
               onQuote={(cfg)=> {
                 const form = { name:'', email:'', phone:'', type:'Compra', units:'1', city:'', country:'México' };
-                const configuration = { model: m.name, version: '', color: cfg.color, seats: cfg.seat, roof: (m.key==='halcon' && cfg.solar)? 'Techo solar':'Estándar', packages: [], selectedAccessories: [] };
+                const packages = [];
+                if (m.key==='halcon' && cfg.solar) {
+                  packages.push('Solar');
+                }
+                const configuration = { model: m.name, version: '', color: cfg.color, seats: cfg.seat, roof: (m.key==='halcon' && cfg.solar)? 'Techo solar':'Estándar', packages: packages, selectedAccessories: [] };
                 // Llama al mismo modal de QuoteModalTrigger
                 const ev = new CustomEvent('vd_open_quote', { detail: { form, configuration } });
                 window.dispatchEvent(ev);

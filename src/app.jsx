@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import Configurator from './components/Configurator.jsx';
@@ -55,6 +55,60 @@ const IMail    = (p)=> <Icon {...p} path="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a
 const ISend    = (p)=> <Icon {...p} path="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>;
 const ICamera  = (p)=> <Icon {...p} path="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2v11zM12 17a5 5 0 100-10 5 5 0 000 10z"/>;
 const IUsers   = (p)=> <Icon {...p} path="M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2M14 7a4 4 0 11-8 0 4 4 0 018 0M23 21v-2a4 4 0 00-3-3"/>;
+
+// ---------------- Lazy Image Component -----------------------------------
+function LazyImage({ src, alt, className, placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%231f2937'/%3E%3C/svg%3E" }) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+  const imgRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={imgRef} className={`relative overflow-hidden ${className}`}>
+      <img
+        src={isInView ? src : placeholder}
+        alt={alt}
+        className={`transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+        onLoad={() => setIsLoaded(true)}
+        loading="lazy"
+      />
+      {!isLoaded && isInView && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-400 border-t-transparent"></div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---------------- Loading Component --------------------------------------
+function PageLoader() {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="text-center">
+        <div className="mb-4 inline-flex h-12 w-12 animate-spin rounded-full border-2 border-emerald-400 border-t-transparent"></div>
+        <p className="text-white/60">Cargando...</p>
+      </div>
+    </div>
+  );
+}
 
 // ---------------- Helpers de UI -----------------------------------------
 const Pill = ({ children }) => (
@@ -535,20 +589,30 @@ function Gallery({ images }) {
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {/* 1 grande izquierda (span 2) + 1 derecha */}
       {images[0] && (
-        <div className="overflow-hidden rounded-3xl border border-white/10 md:col-span-2"><img src={images[0]} alt="gal-0" className="h-56 w-full object-cover md:h-64"/></div>
+        <div className="overflow-hidden rounded-3xl border border-white/10 md:col-span-2">
+          <LazyImage src={images[0]} alt="Galería imagen 1" className="h-56 w-full object-cover md:h-64"/>
+        </div>
       )}
       {images[1] && (
-        <div className="overflow-hidden rounded-3xl border border-white/10"><img src={images[1]} alt="gal-1" className="h-56 w-full object-cover md:h-64"/></div>
+        <div className="overflow-hidden rounded-3xl border border-white/10">
+          <LazyImage src={images[1]} alt="Galería imagen 2" className="h-56 w-full object-cover md:h-64"/>
+        </div>
       )}
       {/* 3 abajo: 2 medianas + 1 grande (span 2) */}
       {images[2] && (
-        <div className="overflow-hidden rounded-3xl border border-white/10"><img src={images[2]} alt="gal-2" className="h-56 w-full object-cover md:h-64"/></div>
+        <div className="overflow-hidden rounded-3xl border border-white/10">
+          <LazyImage src={images[2]} alt="Galería imagen 3" className="h-56 w-full object-cover md:h-64"/>
+        </div>
       )}
       {images[3] && (
-        <div className="overflow-hidden rounded-3xl border border-white/10 md:col-span-2"><img src={images[3]} alt="gal-3" className="h-56 w-full object-cover md:h-64"/></div>
+        <div className="overflow-hidden rounded-3xl border border-white/10 md:col-span-2">
+          <LazyImage src={images[3]} alt="Galería imagen 4" className="h-56 w-full object-cover md:h-64"/>
+        </div>
       )}
       {images[4] && (
-        <div className="overflow-hidden rounded-3xl border border-white/10 md:col-span-3"><img src={images[4]} alt="gal-4" className="h-56 w-full object-cover md:h-64"/></div>
+        <div className="overflow-hidden rounded-3xl border border-white/10 md:col-span-3">
+          <LazyImage src={images[4]} alt="Galería imagen 5" className="h-56 w-full object-cover md:h-64"/>
+        </div>
       )}
     </div>
   );

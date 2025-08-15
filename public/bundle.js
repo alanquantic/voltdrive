@@ -1092,7 +1092,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useReducer(reducer, initialArg, init);
           }
-          function useRef(initialValue) {
+          function useRef2(initialValue) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
@@ -1886,7 +1886,7 @@
           exports.useLayoutEffect = useLayoutEffect;
           exports.useMemo = useMemo3;
           exports.useReducer = useReducer;
-          exports.useRef = useRef;
+          exports.useRef = useRef2;
           exports.useState = useState3;
           exports.useSyncExternalStore = useSyncExternalStore;
           exports.useTransition = useTransition;
@@ -23733,6 +23733,36 @@
   var ISend = (p) => /* @__PURE__ */ import_react2.default.createElement(Icon, { ...p, path: "M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" });
   var ICamera = (p) => /* @__PURE__ */ import_react2.default.createElement(Icon, { ...p, path: "M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2v11zM12 17a5 5 0 100-10 5 5 0 000 10z" });
   var IUsers = (p) => /* @__PURE__ */ import_react2.default.createElement(Icon, { ...p, path: "M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2M14 7a4 4 0 11-8 0 4 4 0 018 0M23 21v-2a4 4 0 00-3-3" });
+  function LazyImage({ src, alt, className, placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%231f2937'/%3E%3C/svg%3E" }) {
+    const [isLoaded, setIsLoaded] = (0, import_react2.useState)(false);
+    const [isInView, setIsInView] = (0, import_react2.useState)(false);
+    const imgRef = (0, import_react2.useRef)(null);
+    (0, import_react2.useEffect)(() => {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setIsInView(true);
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.1 }
+      );
+      if (imgRef.current) {
+        observer.observe(imgRef.current);
+      }
+      return () => observer.disconnect();
+    }, []);
+    return /* @__PURE__ */ import_react2.default.createElement("div", { ref: imgRef, className: `relative overflow-hidden ${className}` }, /* @__PURE__ */ import_react2.default.createElement(
+      "img",
+      {
+        src: isInView ? src : placeholder,
+        alt,
+        className: `transition-opacity duration-300 ${isLoaded ? "opacity-100" : "opacity-0"}`,
+        onLoad: () => setIsLoaded(true),
+        loading: "lazy"
+      }
+    ), !isLoaded && isInView && /* @__PURE__ */ import_react2.default.createElement("div", { className: "absolute inset-0 flex items-center justify-center bg-gray-800" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "h-8 w-8 animate-spin rounded-full border-2 border-emerald-400 border-t-transparent" })));
+  }
   var Pill = ({ children }) => /* @__PURE__ */ import_react2.default.createElement("span", { className: "inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs text-white/90 backdrop-blur" }, children);
   var Section = ({ id, title, subtitle, children }) => /* @__PURE__ */ import_react2.default.createElement("section", { id, className: "relative mx-auto max-w-7xl px-4 py-16 vd-fade" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react2.default.createElement("h2", { className: "text-3xl md:text-4xl font-semibold tracking-tight text-white" }, title), subtitle && /* @__PURE__ */ import_react2.default.createElement("p", { className: "mt-2 max-w-3xl text-white/70 leading-relaxed" }, subtitle)), children);
   function GradientBG() {
@@ -23953,7 +23983,7 @@
     return /* @__PURE__ */ import_react2.default.createElement("div", { className: "grid grid-cols-1 gap-4 md:grid-cols-2" }, variants.map((v) => /* @__PURE__ */ import_react2.default.createElement("div", { key: v.name, className: "rounded-3xl border border-white/10 bg-white/5 p-5" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "mb-2 inline-flex items-center gap-2 text-emerald-300" }, /* @__PURE__ */ import_react2.default.createElement(ISettings, null), " ", /* @__PURE__ */ import_react2.default.createElement("span", { className: "font-semibold text-white" }, v.name)), /* @__PURE__ */ import_react2.default.createElement("ul", { className: "list-disc pl-6 text-white/80" }, v.details.map((d) => /* @__PURE__ */ import_react2.default.createElement("li", { key: d }, d))))));
   }
   function Gallery({ images }) {
-    return /* @__PURE__ */ import_react2.default.createElement("div", { className: "grid grid-cols-1 gap-4 md:grid-cols-3" }, images[0] && /* @__PURE__ */ import_react2.default.createElement("div", { className: "overflow-hidden rounded-3xl border border-white/10 md:col-span-2" }, /* @__PURE__ */ import_react2.default.createElement("img", { src: images[0], alt: "gal-0", className: "h-56 w-full object-cover md:h-64" })), images[1] && /* @__PURE__ */ import_react2.default.createElement("div", { className: "overflow-hidden rounded-3xl border border-white/10" }, /* @__PURE__ */ import_react2.default.createElement("img", { src: images[1], alt: "gal-1", className: "h-56 w-full object-cover md:h-64" })), images[2] && /* @__PURE__ */ import_react2.default.createElement("div", { className: "overflow-hidden rounded-3xl border border-white/10" }, /* @__PURE__ */ import_react2.default.createElement("img", { src: images[2], alt: "gal-2", className: "h-56 w-full object-cover md:h-64" })), images[3] && /* @__PURE__ */ import_react2.default.createElement("div", { className: "overflow-hidden rounded-3xl border border-white/10 md:col-span-2" }, /* @__PURE__ */ import_react2.default.createElement("img", { src: images[3], alt: "gal-3", className: "h-56 w-full object-cover md:h-64" })), images[4] && /* @__PURE__ */ import_react2.default.createElement("div", { className: "overflow-hidden rounded-3xl border border-white/10 md:col-span-3" }, /* @__PURE__ */ import_react2.default.createElement("img", { src: images[4], alt: "gal-4", className: "h-56 w-full object-cover md:h-64" })));
+    return /* @__PURE__ */ import_react2.default.createElement("div", { className: "grid grid-cols-1 gap-4 md:grid-cols-3" }, images[0] && /* @__PURE__ */ import_react2.default.createElement("div", { className: "overflow-hidden rounded-3xl border border-white/10 md:col-span-2" }, /* @__PURE__ */ import_react2.default.createElement(LazyImage, { src: images[0], alt: "Galer\xEDa imagen 1", className: "h-56 w-full object-cover md:h-64" })), images[1] && /* @__PURE__ */ import_react2.default.createElement("div", { className: "overflow-hidden rounded-3xl border border-white/10" }, /* @__PURE__ */ import_react2.default.createElement(LazyImage, { src: images[1], alt: "Galer\xEDa imagen 2", className: "h-56 w-full object-cover md:h-64" })), images[2] && /* @__PURE__ */ import_react2.default.createElement("div", { className: "overflow-hidden rounded-3xl border border-white/10" }, /* @__PURE__ */ import_react2.default.createElement(LazyImage, { src: images[2], alt: "Galer\xEDa imagen 3", className: "h-56 w-full object-cover md:h-64" })), images[3] && /* @__PURE__ */ import_react2.default.createElement("div", { className: "overflow-hidden rounded-3xl border border-white/10 md:col-span-2" }, /* @__PURE__ */ import_react2.default.createElement(LazyImage, { src: images[3], alt: "Galer\xEDa imagen 4", className: "h-56 w-full object-cover md:h-64" })), images[4] && /* @__PURE__ */ import_react2.default.createElement("div", { className: "overflow-hidden rounded-3xl border border-white/10 md:col-span-3" }, /* @__PURE__ */ import_react2.default.createElement(LazyImage, { src: images[4], alt: "Galer\xEDa imagen 5", className: "h-56 w-full object-cover md:h-64" })));
   }
   function Accessories({ items }) {
     return /* @__PURE__ */ import_react2.default.createElement("div", { className: "overflow-hidden rounded-3xl border border-white/10 bg-white/5" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "grid grid-cols-12 bg-white/5 text-sm text-white/70" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "col-span-7 p-3" }, "Accesorio"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "col-span-3 p-3" }, "Categor\xEDa"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "col-span-2 p-3 text-right" }, "Disponibilidad")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "divide-y divide-white/10" }, items.map((a) => /* @__PURE__ */ import_react2.default.createElement("div", { key: a.sku, className: "grid grid-cols-12 items-center p-3 text-white/90" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "col-span-7" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "font-medium text-white" }, a.name), /* @__PURE__ */ import_react2.default.createElement("div", { className: "text-xs text-white/50" }, "SKU: ", a.sku)), /* @__PURE__ */ import_react2.default.createElement("div", { className: "col-span-3 text-sm" }, a.cat), /* @__PURE__ */ import_react2.default.createElement("div", { className: "col-span-2 text-right text-xs text-emerald-300" }, "Bajo pedido")))));

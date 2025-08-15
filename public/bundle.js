@@ -24282,43 +24282,124 @@
     const [open, setOpen] = import_react2.default.useState(null);
     return /* @__PURE__ */ import_react2.default.createElement("div", { className: "mt-6 space-y-3" }, groups.map((g, i) => /* @__PURE__ */ import_react2.default.createElement("div", { key: g.t, className: "overflow-hidden rounded-2xl border border-white/10" }, /* @__PURE__ */ import_react2.default.createElement("button", { onClick: () => setOpen(open === i ? null : i), className: "flex w-full items-center justify-between bg-white/5 px-4 py-3 text-left" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "font-medium text-white" }, g.t), /* @__PURE__ */ import_react2.default.createElement(IChevron, { className: `transition ${open === i ? "rotate-90" : ""}` })), open === i && /* @__PURE__ */ import_react2.default.createElement("ul", { className: "space-y-1 px-4 pb-4 text-sm text-white/80 list-disc pl-6" }, g.c.map((t) => /* @__PURE__ */ import_react2.default.createElement("li", { key: t }, t))))));
   }
+  function updateMetaTags(route, modelData = null) {
+    const baseUrl = window.location.origin;
+    const defaultMeta = {
+      title: "Volt Drive \u2014 Movilidad el\xE9ctrica premium",
+      description: "Carritos el\xE9ctricos silenciosos, c\xF3modos y personalizables para hoteles, tours, eventos, campus y comunidades.",
+      image: `${baseUrl}/assets/home/LOGOVOLTDRIVE.png`,
+      url: window.location.href
+    };
+    let meta = { ...defaultMeta };
+    switch (route) {
+      case "aurora":
+        meta = {
+          title: "Volt Drive \u2014 Aurora 72 | Potencia y tecnolog\xEDa premium",
+          description: 'Carrito el\xE9ctrico Aurora 72 con plataforma 72V LiFePO\u2084, pantalla 12.3", frenos de disco F/R y hasta 80km de autonom\xEDa.',
+          image: `${baseUrl}/assets/models/aurora/hero.webp`,
+          url: `${baseUrl}#/aurora`
+        };
+        break;
+      case "halcon":
+        meta = {
+          title: "Volt Drive \u2014 Halc\xF3n 48 | Eficiencia y versatilidad",
+          description: "Carrito el\xE9ctrico Halc\xF3n 48 con techo solar opcional, 48V LiFePO\u2084, push-to-start y perfecto para tours y eventos.",
+          image: `${baseUrl}/assets/models/halcon/hero.webp`,
+          url: `${baseUrl}#/halcon`
+        };
+        break;
+      case "faq":
+        meta = {
+          title: "Volt Drive \u2014 Preguntas Frecuentes",
+          description: "Respuestas a las preguntas m\xE1s comunes sobre compra, operaci\xF3n, bater\xEDa, servicio y personalizaci\xF3n de carritos el\xE9ctricos.",
+          image: `${baseUrl}/assets/home/LOGOVOLTDRIVE.png`,
+          url: `${baseUrl}#/faq`
+        };
+        break;
+      case "configurador":
+        meta = {
+          title: "Volt Drive \u2014 Configurador | Personaliza tu veh\xEDculo",
+          description: "Configura tu carrito el\xE9ctrico: elige color, asientos, paquetes y accesorios. Solicita cotizaci\xF3n personalizada.",
+          image: `${baseUrl}/assets/home/LOGOVOLTDRIVE.png`,
+          url: `${baseUrl}#configurador`
+        };
+        break;
+    }
+    const updateMeta = (property, content) => {
+      let element = document.querySelector(`meta[property="${property}"]`) || document.querySelector(`meta[name="${property}"]`);
+      if (!element) {
+        element = document.createElement("meta");
+        if (property.startsWith("og:")) {
+          element.setAttribute("property", property);
+        } else {
+          element.setAttribute("name", property);
+        }
+        document.head.appendChild(element);
+      }
+      element.setAttribute("content", content);
+    };
+    document.title = meta.title;
+    updateMeta("og:title", meta.title);
+    updateMeta("og:description", meta.description);
+    updateMeta("og:image", meta.image);
+    updateMeta("og:url", meta.url);
+    updateMeta("og:type", "website");
+    updateMeta("og:site_name", "Volt Drive");
+    updateMeta("twitter:card", "summary_large_image");
+    updateMeta("twitter:title", meta.title);
+    updateMeta("twitter:description", meta.description);
+    updateMeta("twitter:image", meta.image);
+    updateMeta("description", meta.description);
+    updateMeta("canonical", meta.url);
+    if (modelData && (route === "aurora" || route === "halcon")) {
+      const structuredData = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": modelData.name,
+        "description": modelData.tagline,
+        "image": `${baseUrl}${modelData.hero}`,
+        "brand": {
+          "@type": "Brand",
+          "name": "Volt Drive"
+        },
+        "offers": {
+          "@type": "Offer",
+          "availability": "https://schema.org/InStock",
+          "priceCurrency": "MXN"
+        }
+      };
+      const existingScript = document.querySelector('script[type="application/ld+json"]');
+      if (existingScript) {
+        existingScript.remove();
+      }
+      const script = document.createElement("script");
+      script.type = "application/ld+json";
+      script.textContent = JSON.stringify(structuredData);
+      document.head.appendChild(script);
+    }
+  }
   function getRouteFromHash() {
     const h = (window.location.hash || "").toLowerCase();
     if (h.includes("faq")) return "faq";
     if (h.includes("aurora")) return "aurora";
     if (h.includes("halcon")) return "halcon";
+    if (h.includes("configurador")) return "configurador";
     return "about";
   }
   function App() {
     const [route, setRoute] = (0, import_react2.useState)(getRouteFromHash());
     (0, import_react2.useEffect)(() => {
-      const onHash = () => setRoute(getRouteFromHash());
-      window.addEventListener("hashchange", onHash);
-      const updateOg = (r) => {
-        const m = r === "aurora" ? MODELS.aurora : r === "halcon" ? MODELS.halcon : null;
-        const title = m ? `Volt Drive \u2014 ${m.name}` : "Volt Drive \u2014 Movilidad el\xE9ctrica premium";
-        const desc = m ? m.tagline || "Carritos el\xE9ctricos personalizables" : "Carritos el\xE9ctricos personalizables";
-        const img = m ? m.hero || "/assets/models/aurora/hero.webp" : "/assets/models/aurora/hero.webp";
-        const set = (p, c) => {
-          let el = document.querySelector(`meta[property='${p}']`) || document.querySelector(`meta[name='${p}']`);
-          if (!el) {
-            el = document.createElement("meta");
-            if (p.startsWith("og:")) el.setAttribute("property", p);
-            else el.setAttribute("name", p);
-            document.head.appendChild(el);
-          }
-          el.setAttribute("content", c);
-        };
-        set("og:title", title);
-        set("twitter:title", title);
-        set("og:description", desc);
-        set("twitter:description", desc);
-        set("og:image", img);
-        set("twitter:image", img);
+      const onHash = () => {
+        const newRoute = getRouteFromHash();
+        setRoute(newRoute);
+        const modelData2 = newRoute === "aurora" ? MODELS.aurora : newRoute === "halcon" ? MODELS.halcon : null;
+        updateMetaTags(newRoute, modelData2);
       };
-      updateOg(getRouteFromHash());
+      window.addEventListener("hashchange", onHash);
+      const modelData = route === "aurora" ? MODELS.aurora : route === "halcon" ? MODELS.halcon : null;
+      updateMetaTags(route, modelData);
       return () => window.removeEventListener("hashchange", onHash);
-    }, []);
+    }, [route]);
     if (route === "faq") return /* @__PURE__ */ import_react2.default.createElement(FAQPage, null);
     if (route === "aurora") {
       setTimeout(() => window.scrollTo({ top: 0, behavior: "instant" }), 0);

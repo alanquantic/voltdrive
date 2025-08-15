@@ -1513,38 +1513,156 @@ function SpecAccordions({ m }){
   );
 }
 
+// ---------------- SEO Meta Tags Manager ---------------------------------
+function updateMetaTags(route, modelData = null) {
+  const baseUrl = window.location.origin;
+  
+  // Configuración base
+  const defaultMeta = {
+    title: 'Volt Drive — Movilidad eléctrica premium',
+    description: 'Carritos eléctricos silenciosos, cómodos y personalizables para hoteles, tours, eventos, campus y comunidades.',
+    image: `${baseUrl}/assets/home/LOGOVOLTDRIVE.png`,
+    url: window.location.href
+  };
+
+  // Configuración específica por ruta
+  let meta = { ...defaultMeta };
+  
+  switch (route) {
+    case 'aurora':
+      meta = {
+        title: 'Volt Drive — Aurora 72 | Potencia y tecnología premium',
+        description: 'Carrito eléctrico Aurora 72 con plataforma 72V LiFePO₄, pantalla 12.3", frenos de disco F/R y hasta 80km de autonomía.',
+        image: `${baseUrl}/assets/models/aurora/hero.webp`,
+        url: `${baseUrl}#/aurora`
+      };
+      break;
+    case 'halcon':
+      meta = {
+        title: 'Volt Drive — Halcón 48 | Eficiencia y versatilidad',
+        description: 'Carrito eléctrico Halcón 48 con techo solar opcional, 48V LiFePO₄, push-to-start y perfecto para tours y eventos.',
+        image: `${baseUrl}/assets/models/halcon/hero.webp`,
+        url: `${baseUrl}#/halcon`
+      };
+      break;
+    case 'faq':
+      meta = {
+        title: 'Volt Drive — Preguntas Frecuentes',
+        description: 'Respuestas a las preguntas más comunes sobre compra, operación, batería, servicio y personalización de carritos eléctricos.',
+        image: `${baseUrl}/assets/home/LOGOVOLTDRIVE.png`,
+        url: `${baseUrl}#/faq`
+      };
+      break;
+    case 'configurador':
+      meta = {
+        title: 'Volt Drive — Configurador | Personaliza tu vehículo',
+        description: 'Configura tu carrito eléctrico: elige color, asientos, paquetes y accesorios. Solicita cotización personalizada.',
+        image: `${baseUrl}/assets/home/LOGOVOLTDRIVE.png`,
+        url: `${baseUrl}#configurador`
+      };
+      break;
+  }
+
+  // Actualizar meta tags
+  const updateMeta = (property, content) => {
+    let element = document.querySelector(`meta[property="${property}"]`) || document.querySelector(`meta[name="${property}"]`);
+    if (!element) {
+      element = document.createElement('meta');
+      if (property.startsWith('og:')) {
+        element.setAttribute('property', property);
+      } else {
+        element.setAttribute('name', property);
+      }
+      document.head.appendChild(element);
+    }
+    element.setAttribute('content', content);
+  };
+
+  // Actualizar título de la página
+  document.title = meta.title;
+
+  // Open Graph
+  updateMeta('og:title', meta.title);
+  updateMeta('og:description', meta.description);
+  updateMeta('og:image', meta.image);
+  updateMeta('og:url', meta.url);
+  updateMeta('og:type', 'website');
+  updateMeta('og:site_name', 'Volt Drive');
+
+  // Twitter Card
+  updateMeta('twitter:card', 'summary_large_image');
+  updateMeta('twitter:title', meta.title);
+  updateMeta('twitter:description', meta.description);
+  updateMeta('twitter:image', meta.image);
+
+  // Meta básicos
+  updateMeta('description', meta.description);
+  updateMeta('canonical', meta.url);
+
+  // Structured Data para productos (si es página de modelo)
+  if (modelData && (route === 'aurora' || route === 'halcon')) {
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": modelData.name,
+      "description": modelData.tagline,
+      "image": `${baseUrl}${modelData.hero}`,
+      "brand": {
+        "@type": "Brand",
+        "name": "Volt Drive"
+      },
+      "offers": {
+        "@type": "Offer",
+        "availability": "https://schema.org/InStock",
+        "priceCurrency": "MXN"
+      }
+    };
+
+    // Eliminar structured data anterior
+    const existingScript = document.querySelector('script[type="application/ld+json"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+
+    // Agregar nuevo structured data
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(structuredData);
+    document.head.appendChild(script);
+  }
+}
+
 // ---------------- Router hash -------------------------------------------
 function getRouteFromHash() {
   const h = (window.location.hash || '').toLowerCase();
   if (h.includes('faq')) return 'faq';
   if (h.includes('aurora')) return 'aurora';
   if (h.includes('halcon')) return 'halcon';
+  if (h.includes('configurador')) return 'configurador';
   return 'about';
 }
 
 function App() {
   const [route, setRoute] = useState(getRouteFromHash());
+  
   useEffect(() => {
-    const onHash = () => setRoute(getRouteFromHash());
-    window.addEventListener('hashchange', onHash);
-    // Actualiza OG/Twitter dinámico por modelo al cambiar ruta (best effort en SPA)
-    const updateOg = (r)=>{
-      const m = r==='aurora'? MODELS.aurora : r==='halcon'? MODELS.halcon : null;
-      const title = m? `Volt Drive — ${m.name}` : 'Volt Drive — Movilidad eléctrica premium';
-      const desc = m? (m.tagline || 'Carritos eléctricos personalizables') : 'Carritos eléctricos personalizables';
-      const img = m? (m.hero || '/assets/models/aurora/hero.webp') : '/assets/models/aurora/hero.webp';
-      const set = (p,c)=>{
-        let el = document.querySelector(`meta[property='${p}']`) || document.querySelector(`meta[name='${p}']`);
-        if (!el) { el = document.createElement('meta'); if (p.startsWith('og:')) el.setAttribute('property', p); else el.setAttribute('name', p); document.head.appendChild(el); }
-        el.setAttribute('content', c);
-      };
-      set('og:title', title); set('twitter:title', title);
-      set('og:description', desc); set('twitter:description', desc);
-      set('og:image', img); set('twitter:image', img);
+    const onHash = () => {
+      const newRoute = getRouteFromHash();
+      setRoute(newRoute);
+      
+      // Actualizar meta tags dinámicamente
+      const modelData = newRoute === 'aurora' ? MODELS.aurora : newRoute === 'halcon' ? MODELS.halcon : null;
+      updateMetaTags(newRoute, modelData);
     };
-    updateOg(getRouteFromHash());
+    
+    window.addEventListener('hashchange', onHash);
+    
+    // Actualizar meta tags en la carga inicial
+    const modelData = route === 'aurora' ? MODELS.aurora : route === 'halcon' ? MODELS.halcon : null;
+    updateMetaTags(route, modelData);
+    
     return () => window.removeEventListener('hashchange', onHash);
-  }, []);
+  }, [route]);
 
   if (route === 'faq') return <FAQPage/>;
   if (route === 'aurora') {

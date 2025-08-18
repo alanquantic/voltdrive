@@ -536,20 +536,9 @@ const MODELS = {
     imagesByColor: {
       'Azul': '/assets/models/halcon/halcon48-azul.webp',
       'Blanco': '/assets/models/halcon/halcon48-blanco.webp',
-      'Blanco+Naranja': '/assets/models/halcon/halcon48-blanco+naranja-asientosmarron.webp',
-      'Blanco+Negro': '/assets/models/halcon/halcon48-blanco+negro-asientosmarron.webp',
-      'Camaleón': '/assets/models/halcon/halcon48-camaleon-asientosmarron.webp',
-      'Gris': '/assets/models/halcon/halcon48-gris.webp',
-      'Gris+Naranja': '/assets/models/halcon/halcon48-gris+naranja-asientosmarron.webp',
-      'Gris mate': '/assets/models/halcon/halcon48-grismate-asientosmarron.webp',
-      'Marrón': '/assets/models/halcon/halcon48-marron-asientosmarron.webp',
       'Negro': '/assets/models/halcon/halcon48-negro.webp',
-      'Negro+Verde': '/assets/models/halcon/halcon48-negro+verde-asientosmarron.webp',
+      'Gris': '/assets/models/halcon/halcon48-gris.webp',
       'Rojo': '/assets/models/halcon/halcon48-rojo.webp',
-      'Rojo+Azul': '/assets/models/halcon/halcon48-rojo+azul-asientosmarron.webp',
-      'Rojo+Negro': '/assets/models/halcon/halcon48-rojo+negro-asientosmarron.webp',
-      'Silver': '/assets/models/halcon/halcon48-silver-asientosmarron.webp',
-      'Verde claro': '/assets/models/halcon/halcon48-verdeclaro-asientosmarron.webp',
     },
     imagesByColorSeat: {
       'Azul': {
@@ -560,64 +549,20 @@ const MODELS = {
         'Marrón': '/assets/models/halcon/halcon48-blanco-asientosmarron.webp',
         'Negro': '/assets/models/halcon/halcon48-blanco-asientosnegro.webp'
       },
-      'Blanco+Naranja': {
-        'Marrón': '/assets/models/halcon/halcon48-blanco+naranja-asientosmarron.webp',
-        'Negro': '/assets/models/halcon/halcon48-blanco+naranja-asientosnegros.webp'
-      },
-      'Blanco+Negro': {
-        'Marrón': '/assets/models/halcon/halcon48-blanco+negro-asientosmarron.webp',
-        'Negro': '/assets/models/halcon/halcon48-blanco+negro-asientosnegros.webp'
-      },
-      'Camaleón': {
-        'Marrón': '/assets/models/halcon/halcon48-camaleon-asientosmarron.webp',
-        'Negro': '/assets/models/halcon/halcon48-camaleon-asientosnegros.webp'
+      'Negro': {
+        'Marrón': '/assets/models/halcon/halcon48-negro-asientosmarron.webp',
+        'Negro': '/assets/models/halcon/halcon48-negro-asientosnegros.webp'
       },
       'Gris': {
         'Marrón': '/assets/models/halcon/halcon48-gris-asientosmarron.webp',
         'Negro': '/assets/models/halcon/halcon48-gris-asientosnegros.webp'
       },
-      'Gris+Naranja': {
-        'Marrón': '/assets/models/halcon/halcon48-gris+naranja-asientosmarron.webp',
-        'Negro': '/assets/models/halcon/halcon48-gris+naranja-asientosnegros.webp'
-      },
-      'Gris mate': {
-        'Marrón': '/assets/models/halcon/halcon48-grismate-asientosmarron.webp',
-        'Negro': '/assets/models/halcon/halcon48-grismate-asientosnegros.webp'
-      },
-      'Marrón': {
-        'Marrón': '/assets/models/halcon/halcon48-marron-asientosmarron.webp',
-        'Negro': '/assets/models/halcon/halcon48-marron-asientosnegros.webp'
-      },
-      'Negro': {
-        'Marrón': '/assets/models/halcon/halcon48-negro-asientosmarron.webp',
-        'Negro': '/assets/models/halcon/halcon48-negro-asientosnegros.webp'
-      },
-      'Negro+Verde': {
-        'Marrón': '/assets/models/halcon/halcon48-negro+verde-asientosmarron.webp',
-        'Negro': '/assets/models/halcon/halcon48-negro+verde-asientosnegros.webp'
-      },
       'Rojo': {
         'Marrón': '/assets/models/halcon/halcon48-rojo-asientosmarron.webp',
         'Negro': '/assets/models/halcon/halcon48-rojo-asientosnegro.webp'
       },
-      'Rojo+Azul': {
-        'Marrón': '/assets/models/halcon/halcon48-rojo+azul-asientosmarron.webp',
-        'Negro': '/assets/models/halcon/halcon48-rojo+azul-asientosnegros.webp'
-      },
-      'Rojo+Negro': {
-        'Marrón': '/assets/models/halcon/halcon48-rojo+negro-asientosmarron.webp',
-        'Negro': '/assets/models/halcon/halcon48-rojo+negro-asientosnegros.webp'
-      },
-      'Silver': {
-        'Marrón': '/assets/models/halcon/halcon48-silver-asientosmarron.webp',
-        'Negro': '/assets/models/halcon/halcon48-silver-asientosnegros.webp'
-      },
-      'Verde claro': {
-        'Marrón': '/assets/models/halcon/halcon48-verdeclaro-asientosmarron.webp',
-        'Negro': '/assets/models/halcon/halcon48-verdeclaro-asientosnegros.webp'
-      },
     },
-    colors: ['Azul', 'Blanco', 'Blanco+Naranja', 'Blanco+Negro', 'Camaleón', 'Gris', 'Gris+Naranja', 'Gris mate', 'Marrón', 'Negro', 'Negro+Verde', 'Rojo', 'Rojo+Azul', 'Rojo+Negro', 'Silver', 'Verde claro'],
+    colors: ['Azul', 'Blanco', 'Negro', 'Gris', 'Rojo'],
     seats: ['Marrón', 'Negro'],
     variants: [
       { name: 'Rider (urbano)', details: ['Dirección suave para recorridos largos', 'Neumático mixto 14"', 'DRL y faro LED'] },

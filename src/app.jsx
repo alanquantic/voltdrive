@@ -647,28 +647,28 @@ function Gallery({ images }) {
       {/* 1 grande izquierda (span 2) + 1 derecha */}
       {images[0] && (
         <div className="overflow-hidden rounded-3xl border border-white/10 md:col-span-2">
-          <LazyImage src={images[0]} alt="Galería imagen 1" className="h-56 w-full object-cover md:h-64"/>
+          <LazyImage src={images[0]} alt="Galería imagen 1" className="h-56 w-full object-contain md:h-64 bg-gray-900"/>
         </div>
       )}
       {images[1] && (
         <div className="overflow-hidden rounded-3xl border border-white/10">
-          <LazyImage src={images[1]} alt="Galería imagen 2" className="h-56 w-full object-cover md:h-64"/>
+          <LazyImage src={images[1]} alt="Galería imagen 2" className="h-56 w-full object-contain md:h-64 bg-gray-900"/>
         </div>
       )}
       {/* 3 abajo: 2 medianas + 1 grande (span 2) */}
       {images[2] && (
         <div className="overflow-hidden rounded-3xl border border-white/10">
-          <LazyImage src={images[2]} alt="Galería imagen 3" className="h-56 w-full object-cover md:h-64"/>
+          <LazyImage src={images[2]} alt="Galería imagen 3" className="h-56 w-full object-contain md:h-64 bg-gray-900"/>
         </div>
       )}
       {images[3] && (
         <div className="overflow-hidden rounded-3xl border border-white/10 md:col-span-2">
-          <LazyImage src={images[3]} alt="Galería imagen 4" className="h-56 w-full object-cover md:h-64"/>
+          <LazyImage src={images[3]} alt="Galería imagen 4" className="h-56 w-full object-contain md:h-64 bg-gray-900"/>
         </div>
       )}
       {images[4] && (
         <div className="overflow-hidden rounded-3xl border border-white/10 md:col-span-3">
-          <LazyImage src={images[4]} alt="Galería imagen 5" className="h-56 w-full object-cover md:h-64"/>
+          <LazyImage src={images[4]} alt="Galería imagen 5" className="h-56 w-full object-contain md:h-64 bg-gray-900"/>
         </div>
       )}
     </div>

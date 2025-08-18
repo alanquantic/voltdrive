@@ -643,76 +643,33 @@ function Variants({ variants }) {
 }
 
 function Gallery({ images }) {
-  console.log('Gallery render - images:', images);
-  console.log('Gallery render - images length:', images?.length);
-  
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {/* 1 grande izquierda (span 2) + 1 derecha */}
       {images[0] && (
-        <div className="overflow-hidden rounded-3xl border-4 border-red-500 md:col-span-2">
-          <img 
-            src={images[0]} 
-            alt="Galería imagen 1" 
-            className="h-56 w-full md:h-64" 
-            style={{
-              objectFit: 'cover',
-              objectPosition: 'center 60%'
-            }}
-          />
+        <div className="overflow-hidden rounded-3xl border border-white/10 md:col-span-2">
+          <LazyImage src={images[0]} alt="Galería imagen 1" className="h-56 w-full object-cover md:h-64" style={{objectPosition: 'center 60%'}}/>
         </div>
       )}
       {images[1] && (
-        <div className="overflow-hidden rounded-3xl border-4 border-blue-500">
-          <img 
-            src={images[1]} 
-            alt="Galería imagen 2" 
-            className="h-56 w-full md:h-64" 
-            style={{
-              objectFit: 'cover',
-              objectPosition: 'center 60%'
-            }}
-          />
+        <div className="overflow-hidden rounded-3xl border border-white/10">
+          <LazyImage src={images[1]} alt="Galería imagen 2" className="h-56 w-full object-cover md:h-64" style={{objectPosition: 'center 60%'}}/>
         </div>
       )}
       {/* 3 abajo: 2 medianas + 1 grande (span 2) */}
       {images[2] && (
-        <div className="overflow-hidden rounded-3xl border-4 border-green-500">
-          <img 
-            src={images[2]} 
-            alt="Galería imagen 3" 
-            className="h-56 w-full md:h-64" 
-            style={{
-              objectFit: 'cover',
-              objectPosition: 'center 60%'
-            }}
-          />
+        <div className="overflow-hidden rounded-3xl border border-white/10">
+          <LazyImage src={images[2]} alt="Galería imagen 3" className="h-56 w-full object-cover md:h-64" style={{objectPosition: 'center 60%'}}/>
         </div>
       )}
       {images[3] && (
-        <div className="overflow-hidden rounded-3xl border-4 border-yellow-500 md:col-span-2">
-          <img 
-            src={images[3]} 
-            alt="Galería imagen 4" 
-            className="h-56 w-full md:h-64" 
-            style={{
-              objectFit: 'cover',
-              objectPosition: 'center 60%'
-            }}
-          />
+        <div className="overflow-hidden rounded-3xl border border-white/10 md:col-span-2">
+          <LazyImage src={images[3]} alt="Galería imagen 4" className="h-56 w-full object-cover md:h-64" style={{objectPosition: 'center 60%'}}/>
         </div>
       )}
       {images[4] && (
-        <div className="overflow-hidden rounded-3xl border-4 border-purple-500 md:col-span-3">
-          <img 
-            src={images[4]} 
-            alt="Galería imagen 5" 
-            className="h-56 w-full md:h-64" 
-            style={{
-              objectFit: 'cover',
-              objectPosition: 'center 60%'
-            }}
-          />
+        <div className="overflow-hidden rounded-3xl border border-white/10 md:col-span-3">
+          <LazyImage src={images[4]} alt="Galería imagen 5" className="h-56 w-full object-cover md:h-64" style={{objectPosition: 'center 60%'}}/>
         </div>
       )}
     </div>

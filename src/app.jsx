@@ -209,7 +209,7 @@ function Header() {
           <a href="#/aurora" className="text-sm text-white/80 hover:text-white">Aurora 72</a>
           <a href="#/halcon" className="text-sm text-white/80 hover:text-white">Halcón 48</a>
           <a href="#usos" className="text-sm text-white/80 hover:text-white">Usos</a>
-          <a href="#/about#configurador" className="text-sm text-white/80 hover:text-white">Configurador</a>
+          <a href="#configurador" className="text-sm text-white/80 hover:text-white">Configurador</a>
           <a href="#accesorios" className="text-sm text-white/80 hover:text-white">Accesorios</a>
           <a href="#soporte" className="text-sm text-white/80 hover:text-white">Soporte</a>
           <a href="#contacto" className="text-sm text-white/80 hover:text-white">Contacto</a>
@@ -233,7 +233,7 @@ function Footer() {
         <div className="flex flex-wrap items-center gap-3">
           <a href="#modelos" className="hover:text-white">Modelos</a>
           <a href="#usos" className="hover:text-white">Usos</a>
-          <a href="#/about#configurador" className="hover:text-white">Configurador</a>
+          <a href="#configurador" className="hover:text-white">Configurador</a>
           <a href="#accesorios" className="hover:text-white">Accesorios</a>
           <a href="#soporte" className="hover:text-white">Soporte</a>
           <a href="#contacto" className="hover:text-white">Contacto</a>
@@ -2111,7 +2111,20 @@ function App() {
     setTimeout(()=> window.scrollTo({ top: 0, behavior: 'instant' }), 0);
     return <ModelPage m={MODELS.halcon}/>;
   }
-  if (route === 'configurador') return <ConfiguratorPage/>;
+  if (route === 'configurador') {
+    // Ir al home y posicionarse en configurador
+    setTimeout(()=> {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      // Buscar la sección configurador y hacer scroll
+      setTimeout(()=> {
+        const configSection = document.getElementById('configurador');
+        if (configSection) {
+          configSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }, 0);
+    return <HomePage/>;
+  }
   // Home por defecto
   return <HomePage/>;
 }

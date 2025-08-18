@@ -28,6 +28,27 @@ function GlobalStyles() {
       .vd-aurora-a { animation: vd-auroraA 18s ease-in-out infinite; filter: blur(64px); }
       .vd-aurora-b { animation: vd-auroraB 22s ease-in-out infinite; filter: blur(64px); }
       .vd-grid { background-image: linear-gradient(to right, rgba(255,255,255,.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.08) 1px, transparent 1px); background-size:56px 56px; opacity:.06 }
+      
+      /* Estilos para impresión */
+      @media print {
+        /* Ocultar elementos de carga y animaciones */
+        .animate-spin, .vd-aurora-a, .vd-aurora-b, .vd-grid { display: none !important; }
+        
+        /* Forzar carga de imágenes */
+        img { display: block !important; }
+        
+        /* Mejorar contraste para impresión */
+        body { background: white !important; color: black !important; }
+        .text-white { color: black !important; }
+        .text-white\/70 { color: #333 !important; }
+        .text-white\/50 { color: #666 !important; }
+        
+        /* Ocultar elementos interactivos */
+        button, .cursor-pointer { display: none !important; }
+        
+        /* Asegurar que las imágenes se muestren */
+        .LazyImage img { opacity: 1 !important; }
+      }
     `}</style>
   );
 }

@@ -57,7 +57,7 @@ const ICamera  = (p)=> <Icon {...p} path="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2
 const IUsers   = (p)=> <Icon {...p} path="M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2M14 7a4 4 0 11-8 0 4 4 0 018 0M23 21v-2a4 4 0 00-3-3"/>;
 
 // ---------------- Lazy Image Component -----------------------------------
-function LazyImage({ src, alt, className, placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%231f2937'/%3E%3C/svg%3E" }) {
+function LazyImage({ src, alt, className, style, placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%231f2937'/%3E%3C/svg%3E" }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const imgRef = useRef(null);
@@ -86,6 +86,7 @@ function LazyImage({ src, alt, className, placeholder = "data:image/svg+xml,%3Cs
         src={isInView ? src : placeholder}
         alt={alt}
         className={`transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+        style={style}
         onLoad={() => setIsLoaded(true)}
         loading="lazy"
       />

@@ -1129,6 +1129,174 @@ function Comparison() {
   );
 }
 
+// ---------------- Hero Slider Component ---------------------------------
+function HeroSlider() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  
+  const slides = [
+    {
+      id: 1,
+      image: "/assets/home/home-card-01.mp4",
+      poster: "/assets/home/home-hero-01.webp",
+      isVideo: true,
+      overlay: "Cero emisiones locales • Operación silenciosa"
+    },
+    {
+      id: 2,
+      image: "/assets/models/aurora/hero.webp",
+      isVideo: false,
+      overlay: "Aurora 72 • Potencia y tecnología premium"
+    },
+    {
+      id: 3,
+      image: "/assets/models/halcon/hero.webp", 
+      isVideo: false,
+      overlay: "Halcón 48 • Eficiencia y versatilidad"
+    },
+    {
+      id: 4,
+      image: "/assets/models/aurora/aurora_galeria0.webp",
+      isVideo: false,
+      overlay: "Diseño centrado en personas • Confort superior"
+    }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000); // Cambia cada 5 segundos
+
+    return () => clearInterval(interval);
+  }, [slides.length]);
+
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+  };
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  return (
+    <section className="relative mx-auto max-w-7xl px-4 pt-16 vd-fade">
+      <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2">
+        <div>
+          <h1 className="text-4xl font-semibold tracking-tight md:text-6xl">
+            Movilidad eléctrica <span className="bg-gradient-to-r from-emerald-400 via-emerald-500 to-cyan-400 bg-clip-text text-transparent">premium</span> para golf, turismo y eventos
+          </h1>
+          <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/70">
+            Carritos eléctricos silenciosos, cómodos y personalizables. Ideales para hoteles, recorridos turísticos, eventos, campus y comunidades.
+          </p>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <a href="#configurador" className="group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300">
+              Solicitar cotización <IChevron/>
+            </a>
+            <a href="#modelos" className="rounded-full border border-white/15 bg-white/5 px-5 py-3 font-medium text-white/90 backdrop-blur hover:bg-white/10">Ver modelos</a>
+          </div>
+          <div className="mt-8 flex flex-wrap gap-2">
+            <Pill><IGauge/> 25 mph</Pill>
+            <Pill><IBattery/> hasta ~80 km*</Pill>
+            <Pill><IShield/> Frenos de disco F/R</Pill>
+            <Pill><ISpark/> Pantalla 12.3"*</Pill>
+            <Pill><ISun/> Techo solar (Halcón)</Pill>
+          </div>
+          <p className="mt-2 text-xs text-white/50">*Disponibilidad según modelo y paquete.</p>
+        </div>
+
+        <div className="relative">
+          <div className="rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
+            {/* Slider Container */}
+            <div className="relative h-96 md:h-80">
+              {slides.map((slide, index) => (
+                <div
+                  key={slide.id}
+                  className={`absolute inset-0 transition-opacity duration-1000 ${
+                    index === currentSlide ? 'opacity-100' : 'opacity-0'
+                  }`}
+                >
+                  {slide.isVideo ? (
+                    <video
+                      src={slide.image}
+                      className="h-full w-full object-cover"
+                      autoPlay={index === currentSlide}
+                      muted
+                      loop
+                      playsInline
+                      poster={slide.poster}
+                    />
+                  ) : (
+                    <img
+                      src={slide.image}
+                      alt={`Slide ${slide.id}`}
+                      className="h-full w-full object-cover"
+                    />
+                  )}
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-black/0 to-black/40"/>
+                  <div className="absolute left-4 top-4 rounded-2xl bg-black/40 p-3 text-white/90 backdrop-blur">
+                    <div className="flex items-center gap-3">
+                      <span className="text-emerald-300"><ISpark/></span>
+                      {slide.overlay}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {/* Navigation Arrows */}
+              <button
+                onClick={prevSlide}
+                className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white/80 backdrop-blur hover:bg-black/70 hover:text-white transition-all"
+                aria-label="Slide anterior"
+              >
+                <Icon path="M15 18l-6-6 6-6" size={20} />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white/80 backdrop-blur hover:bg-black/70 hover:text-white transition-all"
+                aria-label="Slide siguiente"
+              >
+                <Icon path="M9 18l6-6-6-6" size={20} />
+              </button>
+            </div>
+            
+            {/* Dots Indicator */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+              {slides.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    index === currentSlide 
+                      ? 'bg-emerald-400 w-6' 
+                      : 'bg-white/40 hover:bg-white/60'
+                  }`}
+                  aria-label={`Ir al slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="mt-12 grid grid-cols-1 gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur md:grid-cols-3">
+        {STATS.map((s) => (
+          <div key={s.label} className="flex items-center gap-3">
+            <div className="rounded-xl bg-gradient-to-tr from-emerald-400/20 to-cyan-400/20 p-3 ring-1 ring-white/10"><IGauge className="text-emerald-300"/></div>
+            <div>
+              <p className="text-white/70">{s.label}</p>
+              <p className="text-lg font-semibold">{s.value}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 // ---------------- Home (One‑page) ----------------------------------------
 function HomePage() {
   return (
@@ -1137,67 +1305,8 @@ function HomePage() {
       <GradientBG/>
       <Header/>
 
-      {/* Hero */}
-      <section className="relative mx-auto max-w-7xl px-4 pt-16 vd-fade">
-        <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2">
-          <div>
-            <h1 className="text-4xl font-semibold tracking-tight md:text-6xl">
-              Movilidad eléctrica <span className="bg-gradient-to-r from-emerald-400 via-emerald-500 to-cyan-400 bg-clip-text text-transparent">premium</span> para golf, turismo y eventos
-            </h1>
-            <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/70">
-              Carritos eléctricos silenciosos, cómodos y personalizables. Ideales para hoteles, recorridos turísticos, eventos, campus y comunidades.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-          <a href="#configurador" className="group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300">
-                Solicitar cotización <IChevron/>
-              </a>
-              <a href="#modelos" className="rounded-full border border-white/15 bg-white/5 px-5 py-3 font-medium text-white/90 backdrop-blur hover:bg-white/10">Ver modelos</a>
-            </div>
-            <div className="mt-8 flex flex-wrap gap-2">
-              <Pill><IGauge/> 25 mph</Pill>
-              <Pill><IBattery/> hasta ~80 km*</Pill>
-              <Pill><IShield/> Frenos de disco F/R</Pill>
-              <Pill><ISpark/> Pantalla 12.3"*</Pill>
-              <Pill><ISun/> Techo solar (Halcón)</Pill>
-            </div>
-            <p className="mt-2 text-xs text-white/50">*Disponibilidad según modelo y paquete.</p>
-          </div>
-
-          <div className="relative">
-            <div className="rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
-              <video
-                src="/assets/home/home-card-01.mp4"
-                className="h-full w-full object-cover"
-                autoPlay
-                muted
-                loop
-                playsInline
-                poster="/assets/home/home-hero-01.webp"
-              />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-black/0 to-black/40"/>
-              <div className="absolute left-4 top-4 rounded-2xl bg-black/40 p-3 text-white/90 backdrop-blur">
-                <div className="flex items-center gap-3">
-                  <span className="text-emerald-300"><ISpark/></span>
-                  Cero emisiones locales • Operación silenciosa
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="mt-12 grid grid-cols-1 gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur md:grid-cols-3">
-          {STATS.map((s) => (
-            <div key={s.label} className="flex items-center gap-3">
-              <div className="rounded-xl bg-gradient-to-tr from-emerald-400/20 to-cyan-400/20 p-3 ring-1 ring-white/10"><IGauge className="text-emerald-300"/></div>
-              <div>
-                <p className="text-white/70">{s.label}</p>
-                <p className="text-lg font-semibold">{s.value}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Hero Slider */}
+      <HeroSlider />
 
       {/* Modelos */}
       <Section id="modelos" title="Conoce la línea Volt Drive" subtitle="Elige entre Aurora 72 (72V) y Halcón 48 (48V con techo solar opcional). Seguridad, confort y tecnología para trasladar personas con estilo.">

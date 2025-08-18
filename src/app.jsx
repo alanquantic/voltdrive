@@ -1168,13 +1168,13 @@ function HeroSlider() {
     },
     {
       id: 2,
-      image: "/assets/models/aurora/hero.webp",
+      image: "/assets/home/home_slider2.webp",
       isVideo: false,
       overlay: "Aurora 72 • Potencia y tecnología premium"
     },
     {
       id: 3,
-      image: "/assets/models/halcon/hero.webp", 
+      image: "/assets/home/home_slider3.webp", 
       isVideo: false,
       overlay: "Halcón 48 • Eficiencia y versatilidad"
     },

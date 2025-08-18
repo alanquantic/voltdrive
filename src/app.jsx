@@ -1297,6 +1297,118 @@ function HeroSlider() {
   );
 }
 
+// ---------------- Full Width Slider Component ---------------------------
+function FullWidthSlider() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  
+  const slides = [
+    {
+      id: 1,
+      image: "/assets/models/aurora/aurora_galeria0.webp",
+      title: "Aurora 72",
+      subtitle: "Potencia y tecnología para experiencias premium",
+      overlay: "Plataforma 72V LiFePO₄ • Hasta 80km de autonomía"
+    },
+    {
+      id: 2,
+      image: "/assets/models/halcon/galeria_halcon0.webp",
+      title: "Halcón 48", 
+      subtitle: "Eficiencia y versatilidad para rutas y tours",
+      overlay: "Techo solar opcional • Perfecto para eventos"
+    },
+    {
+      id: 3,
+      image: "/assets/models/aurora/aurora_galeria1.webp",
+      title: "Diseño Premium",
+      subtitle: "Confort y seguridad en cada detalle",
+      overlay: "Asientos ergonómicos • Iluminación LED completa"
+    }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 4000); // Cambia cada 4 segundos
+
+    return () => clearInterval(interval);
+  }, [slides.length]);
+
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+  };
+
+  return (
+    <section className="relative -mx-4 my-16 overflow-hidden">
+      {/* Slider Container */}
+      <div className="relative h-96 md:h-[500px]">
+        {slides.map((slide, index) => (
+          <div
+            key={slide.id}
+            className={`absolute inset-0 transition-opacity duration-1000 ${
+              index === currentSlide ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            <img
+              src={slide.image}
+              alt={`${slide.title} - ${slide.subtitle}`}
+              className="h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent"/>
+            
+            {/* Content Overlay */}
+            <div className="absolute inset-0 flex items-center">
+              <div className="mx-auto max-w-7xl px-4">
+                <div className="max-w-2xl">
+                  <h2 className="text-4xl font-bold text-white md:text-6xl">
+                    {slide.title}
+                  </h2>
+                  <p className="mt-4 text-xl text-white/90 md:text-2xl">
+                    {slide.subtitle}
+                  </p>
+                  <div className="mt-6 flex items-center gap-3 text-white/80">
+                    <span className="text-emerald-300"><ISpark/></span>
+                    {slide.overlay}
+                  </div>
+                  <div className="mt-8 flex gap-4">
+                    <a 
+                      href={`#/${slide.title.toLowerCase().includes('aurora') ? 'aurora' : 'halcon'}`}
+                      className="inline-flex items-center gap-2 rounded-full bg-emerald-400 px-6 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300"
+                    >
+                      Ver {slide.title} <IChevron/>
+                    </a>
+                    <a 
+                      href="#configurador"
+                      className="rounded-full border border-white/20 bg-white/10 px-6 py-3 font-medium text-white backdrop-blur hover:bg-white/20"
+                    >
+                      Configurar
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+        
+        {/* Dots Indicator */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => goToSlide(index)}
+              className={`w-3 h-3 rounded-full transition-all ${
+                index === currentSlide 
+                  ? 'bg-emerald-400 w-8' 
+                  : 'bg-white/40 hover:bg-white/60'
+              }`}
+              aria-label={`Ir al slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ---------------- Home (One‑page) ----------------------------------------
 function HomePage() {
   return (
@@ -1307,6 +1419,9 @@ function HomePage() {
 
       {/* Hero Slider */}
       <HeroSlider />
+
+      {/* Full Width Slider */}
+      <FullWidthSlider />
 
       {/* Modelos */}
       <Section id="modelos" title="Conoce la línea Volt Drive" subtitle="Elige entre Aurora 72 (72V) y Halcón 48 (48V con techo solar opcional). Seguridad, confort y tecnología para trasladar personas con estilo.">

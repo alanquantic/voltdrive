@@ -1318,7 +1318,7 @@ function FullWidthSlider() {
     },
     {
       id: 3,
-      image: "/assets/models/aurora/aurora_galeria1.webp",
+      image: "/assets/home/slider3_voltdrive.webp",
       title: "Diseño Premium",
       subtitle: "Confort y seguridad en cada detalle",
       overlay: "Asientos ergonómicos • Iluminación LED completa"

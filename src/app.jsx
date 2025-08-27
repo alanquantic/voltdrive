@@ -1016,22 +1016,29 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
       }
 
       // Enviar a Odoo CRM (lead)
+      console.log('🔄 Intentando enviar a Odoo CRM...');
       try {
         const odooEndpoint = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app') ? '/api/odoo/quote-lead' : '/api/odoo/quote-lead';
+        console.log('📡 Endpoint Odoo:', odooEndpoint);
+        console.log('📦 Datos a enviar:', { customer: form, configuration });
+        
         const odooResponse = await fetch(odooEndpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ customer: form, configuration })
         });
 
+        console.log('📥 Respuesta de Odoo:', odooResponse.status, odooResponse.statusText);
+
         if (odooResponse.ok) {
           const odooData = await odooResponse.json();
-          console.log('Lead creado en Odoo:', odooData);
+          console.log('✅ Lead creado en Odoo:', odooData);
         } else {
-          console.warn('Error creando lead en Odoo:', odooResponse.status);
+          const errorText = await odooResponse.text();
+          console.error('❌ Error creando lead en Odoo:', odooResponse.status, errorText);
         }
       } catch (odooError) {
-        console.warn('Error enviando a Odoo:', odooError);
+        console.error('💥 Error enviando a Odoo:', odooError);
         // No fallamos el formulario si Odoo falla, solo loggeamos el error
       }
       
@@ -1473,17 +1480,21 @@ function HomePage() {
     
     try {
       // Enviar a Odoo CRM
+      console.log('🔄 Intentando enviar formulario de contacto a Odoo...');
+      const odooData = {
+        name: `Contacto desde Home - ${contactForm.name}`,
+        contact_name: contactForm.name,
+        email: contactForm.email,
+        phone: contactForm.phone || '',
+        description: `Empresa: ${contactForm.company || 'N/A'}\n\nMensaje:\n${contactForm.message}`,
+        source: 'Formulario Home'
+      };
+      console.log('📦 Datos a enviar:', odooData);
+      
       const odooResponse = await fetch('/api/odoo/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: `Contacto desde Home - ${contactForm.name}`,
-          contact_name: contactForm.name,
-          email: contactForm.email,
-          phone: contactForm.phone || '',
-          description: `Empresa: ${contactForm.company || 'N/A'}\n\nMensaje:\n${contactForm.message}`,
-          source: 'Formulario Home'
-        })
+        body: JSON.stringify(odooData)
       });
 
       if (odooResponse.ok) {

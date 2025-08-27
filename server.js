@@ -10,6 +10,12 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const publicDir = path.join(__dirname, 'public');
 
+// Validar variables de entorno de Odoo
+if (!process.env.ODOO_API_KEY || !process.env.ODOO_PASSWORD) {
+  console.warn('⚠️  ADVERTENCIA: Variables de entorno de Odoo no configuradas. La integración con CRM no funcionará.');
+  console.warn('   Configura ODOO_API_KEY y ODOO_PASSWORD en tu archivo .env');
+}
+
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static(publicDir));
 
@@ -85,11 +91,11 @@ app.post('/api/quote', async (req, res) => {
 
 // Odoo CRM Integration
 const ODOO_CONFIG = {
-  url: 'https://alpha-tauro.odoo.com',
-  apiKey: '2eae4fe8f3d27bc0804e7f022be644aa7e1cbec8',
-  password: 'pqa6zxj-uej2zrz1GFP',
-  companyId: 2,
-  database: 'alpha-tauro' // Asumiendo que es el nombre de la base de datos
+  url: process.env.ODOO_URL || 'https://alpha-tauro.odoo.com',
+  apiKey: process.env.ODOO_API_KEY,
+  password: process.env.ODOO_PASSWORD,
+  companyId: parseInt(process.env.ODOO_COMPANY_ID) || 2,
+  database: process.env.ODOO_DATABASE || 'alpha-tauro'
 };
 
 // Función para autenticarse con Odoo

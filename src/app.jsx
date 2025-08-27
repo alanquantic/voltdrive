@@ -1002,6 +1002,7 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
     setError(null);
     
     try {
+      // Enviar a Mailgun (email)
       const endpoint = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app') ? '/api/quote' : '/api/quote';
       const r = await fetch(endpoint, { 
         method:'POST', 
@@ -1012,6 +1013,26 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
       if (!r.ok) {
         const errorData = await r.json().catch(() => ({}));
         throw new Error(errorData.error || `Error ${r.status}: ${r.statusText}`);
+      }
+
+      // Enviar a Odoo CRM (lead)
+      try {
+        const odooEndpoint = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app') ? '/api/odoo/quote-lead' : '/api/odoo/quote-lead';
+        const odooResponse = await fetch(odooEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ customer: form, configuration })
+        });
+
+        if (odooResponse.ok) {
+          const odooData = await odooResponse.json();
+          console.log('Lead creado en Odoo:', odooData);
+        } else {
+          console.warn('Error creando lead en Odoo:', odooResponse.status);
+        }
+      } catch (odooError) {
+        console.warn('Error enviando a Odoo:', odooError);
+        // No fallamos el formulario si Odoo falla, solo loggeamos el error
       }
       
       setOpen(false);

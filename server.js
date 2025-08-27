@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fetch from 'node-fetch';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -79,6 +80,218 @@ app.post('/api/quote', async (req, res) => {
   } catch (err) {
     console.error('Quote error', err);
     return res.status(500).json({ ok: false, error: 'Error interno' });
+  }
+});
+
+// Odoo CRM Integration
+const ODOO_CONFIG = {
+  url: 'https://alpha-tauro.odoo.com',
+  apiKey: '2eae4fe8f3d27bc0804e7f022be644aa7e1cbec8',
+  password: 'pqa6zxj-uej2zrz1GFP',
+  companyId: 2,
+  database: 'alpha-tauro' // Asumiendo que es el nombre de la base de datos
+};
+
+// Función para autenticarse con Odoo
+async function authenticateOdoo() {
+  try {
+    const authResponse = await fetch(`${ODOO_CONFIG.url}/web/session/authenticate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        method: 'call',
+        params: {
+          db: ODOO_CONFIG.database,
+          login: 'admin', // Asumiendo que es el usuario admin
+          password: ODOO_CONFIG.password
+        }
+      })
+    });
+
+    const authData = await authResponse.json();
+    
+    if (authData.error) {
+      throw new Error(`Error de autenticación: ${authData.error.data.message}`);
+    }
+
+    return authData.result;
+  } catch (error) {
+    console.error('Error autenticando con Odoo:', error);
+    throw error;
+  }
+}
+
+// Función para crear un lead en Odoo
+async function createOdooLead(leadData) {
+  try {
+    const auth = await authenticateOdoo();
+    
+    const leadPayload = {
+      jsonrpc: '2.0',
+      method: 'call',
+      params: {
+        model: 'crm.lead',
+        method: 'create',
+        args: [{
+          name: leadData.name || 'Lead desde sitio web',
+          contact_name: leadData.contact_name,
+          email_from: leadData.email,
+          phone: leadData.phone,
+          description: leadData.description,
+          company_id: ODOO_CONFIG.companyId,
+          stage_id: 1, // ID de la etapa "Nuevo"
+          type: 'lead',
+          source_id: false, // Puedes configurar una fuente específica
+          user_id: false, // Se asignará automáticamente o puedes especificar un vendedor
+          team_id: false, // Se asignará automáticamente
+          ...leadData.additional_fields
+        }]
+      }
+    };
+
+    const response = await fetch(`${ODOO_CONFIG.url}/web/dataset/call_kw`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': auth.cookies
+      },
+      body: JSON.stringify(leadPayload)
+    });
+
+    const result = await response.json();
+    
+    if (result.error) {
+      throw new Error(`Error creando lead: ${result.error.data.message}`);
+    }
+
+    return result.result;
+  } catch (error) {
+    console.error('Error creando lead en Odoo:', error);
+    throw error;
+  }
+}
+
+// Endpoint para crear leads en Odoo
+app.post('/api/odoo/lead', async (req, res) => {
+  try {
+    const { 
+      name, 
+      email, 
+      phone, 
+      contact_name, 
+      description, 
+      source = 'Sitio Web',
+      additional_fields = {} 
+    } = req.body;
+
+    // Validación básica
+    if (!email || !contact_name) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'Email y nombre de contacto son requeridos' 
+      });
+    }
+
+    const leadData = {
+      name: name || `Lead de ${contact_name}`,
+      contact_name,
+      email_from: email,
+      phone: phone || '',
+      description: description || '',
+      additional_fields: {
+        ...additional_fields,
+        source_id: source
+      }
+    };
+
+    const leadId = await createOdooLead(leadData);
+
+    return res.json({ 
+      ok: true, 
+      lead_id: leadId,
+      message: 'Lead creado exitosamente en Odoo CRM'
+    });
+
+  } catch (error) {
+    console.error('Error en endpoint /api/odoo/lead:', error);
+    return res.status(500).json({ 
+      ok: false, 
+      error: 'Error interno del servidor' 
+    });
+  }
+});
+
+// Endpoint para crear leads desde el formulario de cotización
+app.post('/api/odoo/quote-lead', async (req, res) => {
+  try {
+    const { customer = {}, configuration = {} } = req.body;
+    
+    // Validación
+    const required = ['name', 'email', 'phone'];
+    const missing = required.filter(k => !String(customer[k] || '').trim());
+    if (missing.length) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: `Faltan campos: ${missing.join(', ')}` 
+      });
+    }
+
+    const description = `
+Solicitud de cotización desde el configurador:
+
+DATOS DEL CLIENTE:
+- Nombre: ${customer.name}
+- Email: ${customer.email}
+- Teléfono: ${customer.phone}
+- Intención: ${customer.type || 'N/A'}
+- Unidades: ${customer.units || 'N/A'}
+- Ciudad: ${customer.city || 'N/A'}
+- País: ${customer.country || 'N/A'}
+
+CONFIGURACIÓN:
+- Modelo: ${configuration.model || 'N/A'}
+- Versión: ${configuration.version || 'N/A'}
+- Color: ${configuration.color || 'N/A'}
+- Color de Asientos: ${configuration.seats || 'N/A'}
+- Techo: ${configuration.roof || 'N/A'}
+- Paquetes: ${(configuration.packages || []).join(', ') || 'N/A'}
+- Accesorios: ${(configuration.selectedAccessories || []).join(', ') || 'N/A'}
+
+Fecha: ${new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' })}
+    `.trim();
+
+    const leadData = {
+      name: `Cotización ${customer.type} - ${customer.name}`,
+      contact_name: customer.name,
+      email_from: customer.email,
+      phone: customer.phone,
+      description,
+      additional_fields: {
+        source_id: 'Configurador Web',
+        type: customer.type,
+        units: customer.units,
+        city: customer.city,
+        country: customer.country
+      }
+    };
+
+    const leadId = await createOdooLead(leadData);
+
+    return res.json({ 
+      ok: true, 
+      lead_id: leadId,
+      message: 'Lead de cotización creado exitosamente en Odoo CRM'
+    });
+
+  } catch (error) {
+    console.error('Error en endpoint /api/odoo/quote-lead:', error);
+    return res.status(500).json({ 
+      ok: false, 
+      error: 'Error interno del servidor' 
+    });
   }
 });
 

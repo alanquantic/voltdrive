@@ -14,7 +14,8 @@
     "build": "esbuild src/app.jsx --bundle --outfile=public/bundle.js --loader:.jsx=jsx --minify --tree-shaking=true --target=es2020",
     "build:dev": "esbuild src/app.jsx --bundle --outfile=public/bundle.js --loader:.jsx=jsx --sourcemap",
     "start": "node server.js",
-    "dev": "npm run build:dev && node server.js"
+    "dev": "npm run build:dev && node server.js",
+    "vercel-build": "npm run build"
   },
   "dependencies": {
     "dotenv": "^17.2.1",

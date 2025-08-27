@@ -174,7 +174,7 @@ async function createOdooLead(leadData) {
         args: [{
           name: leadData.name || 'Lead desde sitio web',
           contact_name: leadData.contact_name,
-          email_from: leadData.email,
+          email_from: leadData.email || leadData.email_from,
           phone: leadData.phone,
           description: leadData.description,
           company_id: ODOO_CONFIG.companyId,

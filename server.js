@@ -319,6 +319,15 @@ Fecha: ${new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' })
   }
 });
 
+// Endpoint de prueba para verificar que el servidor funciona
+app.get('/api/test', (req, res) => {
+  res.json({ 
+    ok: true, 
+    message: 'Servidor funcionando correctamente',
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.get('*', (_req, res) => {
   res.sendFile(path.join(publicDir, 'index.html'));
 });

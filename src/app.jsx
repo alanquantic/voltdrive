@@ -1457,6 +1457,52 @@ function FullWidthSlider() {
 
 // ---------------- Home (One‑page) ----------------------------------------
 function HomePage() {
+  const [contactForm, setContactForm] = useState({ name:'', email:'', phone:'', company:'', message:'' });
+  const [sendingContact, setSendingContact] = useState(false);
+  const [contactError, setContactError] = useState(null);
+
+  async function submitContactForm(e) {
+    e.preventDefault();
+    if (!contactForm.name || !contactForm.email || !contactForm.message) {
+      setContactError('Por favor completa los campos requeridos');
+      return;
+    }
+    
+    setSendingContact(true);
+    setContactError(null);
+    
+    try {
+      // Enviar a Odoo CRM
+      const odooResponse = await fetch('/api/odoo/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `Contacto desde Home - ${contactForm.name}`,
+          contact_name: contactForm.name,
+          email: contactForm.email,
+          phone: contactForm.phone || '',
+          description: `Empresa: ${contactForm.company || 'N/A'}\n\nMensaje:\n${contactForm.message}`,
+          source: 'Formulario Home'
+        })
+      });
+
+      if (odooResponse.ok) {
+        const odooData = await odooResponse.json();
+        console.log('Lead creado en Odoo:', odooData);
+        showToast('Mensaje enviado. Te contactaremos pronto.');
+        setContactForm({ name:'', email:'', phone:'', company:'', message:'' });
+      } else {
+        throw new Error('Error enviando a Odoo');
+      }
+    } catch (error) {
+      console.error('Error en formulario de contacto:', error);
+      setContactError('No se pudo enviar el mensaje. Inténtalo más tarde.');
+      showToast('Error: No se pudo enviar el mensaje');
+    } finally {
+      setSendingContact(false);
+    }
+  }
+
   return (
     <main className="min-h-screen bg-[radial-gradient(80rem_50rem_at_50%_-10%,rgba(16,185,129,0.12),rgba(0,0,0,0))] text-white">
       <GlobalStyles/>
@@ -1522,25 +1568,71 @@ function HomePage() {
       <Section id="contacto" title="Hablemos de tu Volt Drive" subtitle="Agenda una demostración o solicita una cotización personalizada.">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-            <form className="grid grid-cols-1 gap-4">
-              {[
-                {label:'Nombre y Apellidos', type:'text'},
-                {label:'Empresa / Organización', type:'text'},
-                {label:'Email', type:'email'},
-                {label:'Teléfono / WhatsApp', type:'tel'},
-              ].map((f)=> (
-                <div key={f.label}>
-                  <label className="block text-sm text-white/70">{f.label}</label>
-                  <input type={f.type} className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" placeholder="Escribe aquí…"/>
-                </div>
-              ))}
+            <form onSubmit={submitContactForm} className="grid grid-cols-1 gap-4">
               <div>
-                <label className="block text-sm text-white/70">Mensaje</label>
-                <textarea className="mt-1 h-28 w-full rounded-xl bg-white/10 p-3 text-white outline-none" placeholder="Cuéntanos sobre tu proyecto…"/>
+                <label className="block text-sm text-white/70">Nombre y Apellidos *</label>
+                <input 
+                  type="text" 
+                  value={contactForm.name}
+                  onChange={(e) => setContactForm({...contactForm, name: e.target.value})}
+                  className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" 
+                  placeholder="Escribe aquí…"
+                  required
+                />
               </div>
+              <div>
+                <label className="block text-sm text-white/70">Empresa / Organización</label>
+                <input 
+                  type="text" 
+                  value={contactForm.company}
+                  onChange={(e) => setContactForm({...contactForm, company: e.target.value})}
+                  className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" 
+                  placeholder="Escribe aquí…"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-white/70">Email *</label>
+                <input 
+                  type="email" 
+                  value={contactForm.email}
+                  onChange={(e) => setContactForm({...contactForm, email: e.target.value})}
+                  className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" 
+                  placeholder="correo@dominio.com"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-white/70">Teléfono / WhatsApp</label>
+                <input 
+                  type="tel" 
+                  value={contactForm.phone}
+                  onChange={(e) => setContactForm({...contactForm, phone: e.target.value})}
+                  className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" 
+                  placeholder="+52 ..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-white/70">Mensaje *</label>
+                <textarea 
+                  value={contactForm.message}
+                  onChange={(e) => setContactForm({...contactForm, message: e.target.value})}
+                  className="mt-1 h-28 w-full rounded-xl bg-white/10 p-3 text-white outline-none" 
+                  placeholder="Cuéntanos sobre tu proyecto…"
+                  required
+                />
+              </div>
+              {contactError && (
+                <div className="rounded-xl border border-rose-500/20 bg-rose-500/10 p-3">
+                  <div className="text-rose-300 text-sm">{contactError}</div>
+                </div>
+              )}
               <div className="flex items-center gap-3 pt-2">
-                <button type="button" className="inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300">
-                  Enviar solicitud <ISend/>
+                <button 
+                  type="submit" 
+                  disabled={sendingContact}
+                  className="inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300 disabled:opacity-50"
+                >
+                  {sendingContact ? 'Enviando...' : 'Enviar solicitud'} <ISend/>
                 </button>
                 <a href="tel:+52XXXXXXXXXX" className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-medium text-white/90 backdrop-blur hover:bg-white/10">
                   <IPhone/> Llamar
@@ -1607,6 +1699,51 @@ function FAQInline() {
 function ModelPage({ m }) {
   const [config, setConfig] = useState({ color: '', seat: '', solar: false });
   const [leadForm, setLeadForm] = useState({ name:'', email:'', phone:'', type:'Compra', units:'1', city:'', country:'México' });
+  const [contactForm, setContactForm] = useState({ name:'', email:'', phone:'', company:'', message:'' });
+  const [sendingContact, setSendingContact] = useState(false);
+  const [contactError, setContactError] = useState(null);
+
+  async function submitContactForm(e) {
+    e.preventDefault();
+    if (!contactForm.name || !contactForm.email || !contactForm.message) {
+      setContactError('Por favor completa los campos requeridos');
+      return;
+    }
+    
+    setSendingContact(true);
+    setContactError(null);
+    
+    try {
+      // Enviar a Odoo CRM
+      const odooResponse = await fetch('/api/odoo/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `Contacto ${m.name} - ${contactForm.name}`,
+          contact_name: contactForm.name,
+          email: contactForm.email,
+          phone: contactForm.phone || '',
+          description: `Modelo: ${m.name}\nEmpresa: ${contactForm.company || 'N/A'}\n\nMensaje:\n${contactForm.message}`,
+          source: `Formulario ${m.name}`
+        })
+      });
+
+      if (odooResponse.ok) {
+        const odooData = await odooResponse.json();
+        console.log('Lead creado en Odoo:', odooData);
+        showToast('Mensaje enviado. Te contactaremos pronto.');
+        setContactForm({ name:'', email:'', phone:'', company:'', message:'' });
+      } else {
+        throw new Error('Error enviando a Odoo');
+      }
+    } catch (error) {
+      console.error('Error en formulario de contacto:', error);
+      setContactError('No se pudo enviar el mensaje. Inténtalo más tarde.');
+      showToast('Error: No se pudo enviar el mensaje');
+    } finally {
+      setSendingContact(false);
+    }
+  }
 
   return (
     <main className="min-h-screen bg-[radial-gradient(80rem_50rem_at_50%_-10%,rgba(16,185,129,0.12),rgba(0,0,0,0))]">
@@ -1744,32 +1881,73 @@ function ModelPage({ m }) {
       <Section id="contacto" title={`Hablemos de tu ${m.name}`} subtitle="Agenda una demostración o solicita una cotización personalizada.">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-            <form className="grid grid-cols-1 gap-4">
+            <form onSubmit={submitContactForm} className="grid grid-cols-1 gap-4">
               <div>
-                <label className="block text-sm text-white/70">Nombre y Apellidos</label>
-                <input className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" placeholder="Escribe aquí…"/>
+                <label className="block text-sm text-white/70">Nombre y Apellidos *</label>
+                <input 
+                  type="text" 
+                  value={contactForm.name}
+                  onChange={(e) => setContactForm({...contactForm, name: e.target.value})}
+                  className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" 
+                  placeholder="Escribe aquí…"
+                  required
+                />
               </div>
               <div>
                 <label className="block text-sm text-white/70">Empresa / Organización</label>
-                <input className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" placeholder="Escribe aquí…"/>
+                <input 
+                  type="text" 
+                  value={contactForm.company}
+                  onChange={(e) => setContactForm({...contactForm, company: e.target.value})}
+                  className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" 
+                  placeholder="Escribe aquí…"
+                />
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                  <label className="block text-sm text-white/70">Email</label>
-                  <input type="email" className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" placeholder="correo@dominio.com"/>
+                  <label className="block text-sm text-white/70">Email *</label>
+                  <input 
+                    type="email" 
+                    value={contactForm.email}
+                    onChange={(e) => setContactForm({...contactForm, email: e.target.value})}
+                    className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" 
+                    placeholder="correo@dominio.com"
+                    required
+                  />
                 </div>
                 <div>
                   <label className="block text-sm text-white/70">Teléfono / WhatsApp</label>
-                  <input type="tel" className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" placeholder="+52 ..."/>
+                  <input 
+                    type="tel" 
+                    value={contactForm.phone}
+                    onChange={(e) => setContactForm({...contactForm, phone: e.target.value})}
+                    className="mt-1 w-full rounded-xl bg-white/10 p-3 text-white outline-none" 
+                    placeholder="+52 ..."
+                  />
                 </div>
               </div>
               <div>
-                <label className="block text-sm text-white/70">Mensaje</label>
-                <textarea className="mt-1 h-28 w-full rounded-xl bg-white/10 p-3 text-white outline-none" placeholder={`Estoy interesado en ${m.name} (${config.color || 'color a elegir'}, ${config.seat || 'tapicería a elegir'}${m.key==='halcon' && config.solar? ', paquete Solar':''}).`}/>
+                <label className="block text-sm text-white/70">Mensaje *</label>
+                <textarea 
+                  value={contactForm.message}
+                  onChange={(e) => setContactForm({...contactForm, message: e.target.value})}
+                  className="mt-1 h-28 w-full rounded-xl bg-white/10 p-3 text-white outline-none" 
+                  placeholder={`Estoy interesado en ${m.name} (${config.color || 'color a elegir'}, ${config.seat || 'tapicería a elegir'}${m.key==='halcon' && config.solar? ', paquete Solar':''}).`}
+                  required
+                />
               </div>
+              {contactError && (
+                <div className="rounded-xl border border-rose-500/20 bg-rose-500/10 p-3">
+                  <div className="text-rose-300 text-sm">{contactError}</div>
+                </div>
+              )}
               <div className="flex items-center gap-3 pt-1">
-                <button type="button" className="inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300">
-                  Enviar solicitud <ISend/>
+                <button 
+                  type="submit" 
+                  disabled={sendingContact}
+                  className="inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 font-medium text-emerald-950 transition hover:bg-emerald-300 disabled:opacity-50"
+                >
+                  {sendingContact ? 'Enviando...' : 'Enviar solicitud'} <ISend/>
                 </button>
               </div>
               <p className="text-xs text-white/60">Te responderemos en menos de 24 horas hábiles.</p>

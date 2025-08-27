@@ -107,37 +107,53 @@ const ODOO_CONFIG = {
 // Función para autenticarse con Odoo
 async function authenticateOdoo() {
   try {
+    console.log('🔐 Configuración de autenticación:');
+    console.log('   URL:', ODOO_CONFIG.url);
+    console.log('   Database:', ODOO_CONFIG.database);
+    console.log('   User:', ODOO_CONFIG.user);
+    console.log('   Company ID:', ODOO_CONFIG.companyId);
+    
+    const authPayload = {
+      jsonrpc: '2.0',
+      method: 'call',
+      params: {
+        db: ODOO_CONFIG.database,
+        login: ODOO_CONFIG.user,
+        password: ODOO_CONFIG.password
+      }
+    };
+    
+    console.log('📤 Payload de autenticación:', JSON.stringify(authPayload, null, 2));
+    
     const authResponse = await fetch(`${ODOO_CONFIG.url}/web/session/authenticate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'call',
-        params: {
-          db: ODOO_CONFIG.database,
-          login: ODOO_CONFIG.user,
-          password: ODOO_CONFIG.password
-        }
-      })
+      body: JSON.stringify(authPayload)
     });
 
+    console.log('📥 Respuesta HTTP de autenticación:', authResponse.status, authResponse.statusText);
+    
     const authData = await authResponse.json();
+    console.log('📄 Respuesta JSON de autenticación:', JSON.stringify(authData, null, 2));
     
     if (authData.error) {
+      console.error('❌ Error en autenticación:', authData.error);
       throw new Error(`Error de autenticación: ${authData.error.data.message}`);
     }
 
     // Extraer cookies de la respuesta
     const cookies = authResponse.headers.get('set-cookie');
+    console.log('🍪 Cookies obtenidas:', cookies ? 'Sí' : 'No');
     
     return {
       ...authData.result,
       cookies: cookies
     };
   } catch (error) {
-    console.error('Error autenticando con Odoo:', error);
+    console.error('💥 Error autenticando con Odoo:', error);
+    console.error('💥 Stack trace:', error.stack);
     throw error;
   }
 }
@@ -145,7 +161,9 @@ async function authenticateOdoo() {
 // Función para crear un lead en Odoo
 async function createOdooLead(leadData) {
   try {
+    console.log('🔐 Iniciando autenticación con Odoo...');
     const auth = await authenticateOdoo();
+    console.log('✅ Autenticación exitosa con Odoo');
     
     const leadPayload = {
       jsonrpc: '2.0',
@@ -171,6 +189,9 @@ async function createOdooLead(leadData) {
       }
     };
 
+    console.log('📤 Payload para Odoo:', JSON.stringify(leadPayload, null, 2));
+    console.log('🌐 URL de Odoo:', `${ODOO_CONFIG.url}/web/dataset/call_kw`);
+
     // Usar el endpoint correcto para crear leads
     const response = await fetch(`${ODOO_CONFIG.url}/web/dataset/call_kw`, {
       method: 'POST',
@@ -182,15 +203,21 @@ async function createOdooLead(leadData) {
       body: JSON.stringify(leadPayload)
     });
 
+    console.log('📥 Respuesta HTTP de Odoo:', response.status, response.statusText);
+    
     const result = await response.json();
+    console.log('📄 Respuesta JSON de Odoo:', JSON.stringify(result, null, 2));
     
     if (result.error) {
+      console.error('❌ Error en respuesta de Odoo:', result.error);
       throw new Error(`Error creando lead: ${result.error.data.message}`);
     }
 
+    console.log('✅ Lead creado exitosamente con ID:', result.result);
     return result.result;
   } catch (error) {
-    console.error('Error creando lead en Odoo:', error);
+    console.error('💥 Error creando lead en Odoo:', error);
+    console.error('💥 Stack trace:', error.stack);
     throw error;
   }
 }

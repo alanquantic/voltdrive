@@ -1491,18 +1491,25 @@ function HomePage() {
       };
       console.log('📦 Datos a enviar:', odooData);
       
-      const odooResponse = await fetch('/api/odoo/lead', {
+      const odooEndpoint = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app') ? '/api/odoo/lead' : '/api/odoo/lead';
+      console.log('📡 Endpoint Odoo:', odooEndpoint);
+      
+      const odooResponse = await fetch(odooEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(odooData)
       });
 
+      console.log('📥 Respuesta de Odoo:', odooResponse.status, odooResponse.statusText);
+
       if (odooResponse.ok) {
         const odooData = await odooResponse.json();
-        console.log('Lead creado en Odoo:', odooData);
+        console.log('✅ Lead creado en Odoo:', odooData);
         showToast('Mensaje enviado. Te contactaremos pronto.');
         setContactForm({ name:'', email:'', phone:'', company:'', message:'' });
       } else {
+        const errorText = await odooResponse.text();
+        console.error('❌ Error creando lead en Odoo:', odooResponse.status, errorText);
         throw new Error('Error enviando a Odoo');
       }
     } catch (error) {
@@ -1726,25 +1733,35 @@ function ModelPage({ m }) {
     
     try {
       // Enviar a Odoo CRM
-      const odooResponse = await fetch('/api/odoo/lead', {
+      console.log('🔄 Intentando enviar formulario de contacto a Odoo...');
+      const odooData = {
+        name: `Contacto ${m.name} - ${contactForm.name}`,
+        contact_name: contactForm.name,
+        email: contactForm.email,
+        phone: contactForm.phone || '',
+        description: `Modelo: ${m.name}\nEmpresa: ${contactForm.company || 'N/A'}\n\nMensaje:\n${contactForm.message}`,
+        source: `Formulario ${m.name}`
+      };
+      
+      const odooEndpoint = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app') ? '/api/odoo/lead' : '/api/odoo/lead';
+      console.log('📡 Endpoint Odoo:', odooEndpoint);
+      
+      const odooResponse = await fetch(odooEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: `Contacto ${m.name} - ${contactForm.name}`,
-          contact_name: contactForm.name,
-          email: contactForm.email,
-          phone: contactForm.phone || '',
-          description: `Modelo: ${m.name}\nEmpresa: ${contactForm.company || 'N/A'}\n\nMensaje:\n${contactForm.message}`,
-          source: `Formulario ${m.name}`
-        })
+        body: JSON.stringify(odooData)
       });
+
+      console.log('📥 Respuesta de Odoo:', odooResponse.status, odooResponse.statusText);
 
       if (odooResponse.ok) {
         const odooData = await odooResponse.json();
-        console.log('Lead creado en Odoo:', odooData);
+        console.log('✅ Lead creado en Odoo:', odooData);
         showToast('Mensaje enviado. Te contactaremos pronto.');
         setContactForm({ name:'', email:'', phone:'', company:'', message:'' });
       } else {
+        const errorText = await odooResponse.text();
+        console.error('❌ Error creando lead en Odoo:', odooResponse.status, errorText);
         throw new Error('Error enviando a Odoo');
       }
     } catch (error) {

@@ -95,7 +95,8 @@ const ODOO_CONFIG = {
   apiKey: process.env.ODOO_API_KEY,
   password: process.env.ODOO_PASSWORD,
   companyId: parseInt(process.env.ODOO_COMPANY_ID) || 2,
-  database: process.env.ODOO_DATABASE || 'alpha-tauro'
+  database: process.env.ODOO_DATABASE || 'alpha-tauro',
+  user: process.env.ODOO_USER || 'alan.avalos@alpha-tauro.com'
 };
 
 // Función para autenticarse con Odoo
@@ -111,7 +112,7 @@ async function authenticateOdoo() {
         method: 'call',
         params: {
           db: ODOO_CONFIG.database,
-          login: 'admin', // Asumiendo que es el usuario admin
+          login: ODOO_CONFIG.user,
           password: ODOO_CONFIG.password
         }
       })
@@ -123,7 +124,13 @@ async function authenticateOdoo() {
       throw new Error(`Error de autenticación: ${authData.error.data.message}`);
     }
 
-    return authData.result;
+    // Extraer cookies de la respuesta
+    const cookies = authResponse.headers.get('set-cookie');
+    
+    return {
+      ...authData.result,
+      cookies: cookies
+    };
   } catch (error) {
     console.error('Error autenticando con Odoo:', error);
     throw error;
@@ -150,19 +157,22 @@ async function createOdooLead(leadData) {
           company_id: ODOO_CONFIG.companyId,
           stage_id: 1, // ID de la etapa "Nuevo"
           type: 'lead',
-          source_id: false, // Puedes configurar una fuente específica
-          user_id: false, // Se asignará automáticamente o puedes especificar un vendedor
-          team_id: false, // Se asignará automáticamente
+          source_id: false,
+          user_id: false,
+          team_id: false,
           ...leadData.additional_fields
-        }]
+        }],
+        kwargs: {}
       }
     };
 
+    // Usar el endpoint correcto para crear leads
     const response = await fetch(`${ODOO_CONFIG.url}/web/dataset/call_kw`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Cookie': auth.cookies
+        'Cookie': auth.cookies || '',
+        'X-Requested-With': 'XMLHttpRequest'
       },
       body: JSON.stringify(leadPayload)
     });
@@ -207,10 +217,10 @@ app.post('/api/odoo/lead', async (req, res) => {
       email_from: email,
       phone: phone || '',
       description: description || '',
-      additional_fields: {
-        ...additional_fields,
-        source_id: source
-      }
+              additional_fields: {
+          ...additional_fields,
+          source_id: false // Cambiar a false en lugar de string
+        }
     };
 
     const leadId = await createOdooLead(leadData);
@@ -225,7 +235,7 @@ app.post('/api/odoo/lead', async (req, res) => {
     console.error('Error en endpoint /api/odoo/lead:', error);
     return res.status(500).json({ 
       ok: false, 
-      error: 'Error interno del servidor' 
+      error: error.message || 'Error interno del servidor' 
     });
   }
 });
@@ -276,11 +286,7 @@ Fecha: ${new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' })
       phone: customer.phone,
       description,
       additional_fields: {
-        source_id: 'Configurador Web',
-        type: customer.type,
-        units: customer.units,
-        city: customer.city,
-        country: customer.country
+        source_id: false // Cambiar a false en lugar de string
       }
     };
 
@@ -296,7 +302,7 @@ Fecha: ${new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' })
     console.error('Error en endpoint /api/odoo/quote-lead:', error);
     return res.status(500).json({ 
       ok: false, 
-      error: 'Error interno del servidor' 
+      error: error.message || 'Error interno del servidor' 
     });
   }
 });

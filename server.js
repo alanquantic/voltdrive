@@ -14,6 +14,11 @@ const publicDir = path.join(__dirname, 'public');
 if (!process.env.ODOO_API_KEY || !process.env.ODOO_PASSWORD) {
   console.warn('⚠️  ADVERTENCIA: Variables de entorno de Odoo no configuradas. La integración con CRM no funcionará.');
   console.warn('   Configura ODOO_API_KEY y ODOO_PASSWORD en tu archivo .env');
+} else {
+  console.log('✅ Variables de entorno de Odoo configuradas correctamente');
+  console.log('   ODOO_URL:', process.env.ODOO_URL);
+  console.log('   ODOO_USER:', process.env.ODOO_USER);
+  console.log('   ODOO_COMPANY_ID:', process.env.ODOO_COMPANY_ID);
 }
 
 app.use(express.json({ limit: '1mb' }));
@@ -192,6 +197,8 @@ async function createOdooLead(leadData) {
 
 // Endpoint para crear leads en Odoo
 app.post('/api/odoo/lead', async (req, res) => {
+  console.log('📥 Recibida solicitud para crear lead en Odoo:', req.body);
+  
   try {
     const { 
       name, 
@@ -205,6 +212,7 @@ app.post('/api/odoo/lead', async (req, res) => {
 
     // Validación básica
     if (!email || !contact_name) {
+      console.log('❌ Validación fallida: email o contact_name faltantes');
       return res.status(400).json({ 
         ok: false, 
         error: 'Email y nombre de contacto son requeridos' 
@@ -217,13 +225,15 @@ app.post('/api/odoo/lead', async (req, res) => {
       email_from: email,
       phone: phone || '',
       description: description || '',
-              additional_fields: {
-          ...additional_fields,
-          source_id: false // Cambiar a false en lugar de string
-        }
+      additional_fields: {
+        ...additional_fields,
+        source_id: false // Cambiar a false en lugar de string
+      }
     };
 
+    console.log('📤 Enviando datos a Odoo:', leadData);
     const leadId = await createOdooLead(leadData);
+    console.log('✅ Lead creado exitosamente en Odoo con ID:', leadId);
 
     return res.json({ 
       ok: true, 
@@ -232,7 +242,7 @@ app.post('/api/odoo/lead', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error en endpoint /api/odoo/lead:', error);
+    console.error('❌ Error en endpoint /api/odoo/lead:', error);
     return res.status(500).json({ 
       ok: false, 
       error: error.message || 'Error interno del servidor' 
@@ -242,6 +252,8 @@ app.post('/api/odoo/lead', async (req, res) => {
 
 // Endpoint para crear leads desde el formulario de cotización
 app.post('/api/odoo/quote-lead', async (req, res) => {
+  console.log('📥 Recibida solicitud para crear lead de cotización en Odoo:', req.body);
+  
   try {
     const { customer = {}, configuration = {} } = req.body;
     

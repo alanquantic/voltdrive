@@ -227,7 +227,8 @@ app.post('/api/odoo/lead', async (req, res) => {
       description: description || '',
       additional_fields: {
         ...additional_fields,
-        source_id: false // Cambiar a false en lugar de string
+        source_id: false, // Cambiar a false en lugar de string
+        email: email // Agregar email explícitamente
       }
     };
 
@@ -298,7 +299,8 @@ Fecha: ${new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' })
       phone: customer.phone,
       description,
       additional_fields: {
-        source_id: false // Cambiar a false en lugar de string
+        source_id: false, // Cambiar a false en lugar de string
+        email: customer.email // Agregar email explícitamente
       }
     };
 

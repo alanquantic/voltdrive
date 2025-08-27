@@ -182,14 +182,14 @@ async function createOdooLead(leadData) {
           type: 'lead',
           source_id: false,
           user_id: false,
-          team_id: false,
-          ...leadData.additional_fields
+          team_id: false
         }],
         kwargs: {}
       }
     };
 
     console.log('📤 Payload para Odoo:', JSON.stringify(leadPayload, null, 2));
+    console.log('📤 leadData original:', JSON.stringify(leadData, null, 2));
     console.log('🌐 URL de Odoo:', `${ODOO_CONFIG.url}/web/dataset/call_kw`);
 
     // Usar el endpoint correcto para crear leads
@@ -249,13 +249,12 @@ app.post('/api/odoo/lead', async (req, res) => {
     const leadData = {
       name: name || `Lead de ${contact_name}`,
       contact_name,
-      email_from: email,
+      email: email, // Campo para el payload
       phone: phone || '',
       description: description || '',
       additional_fields: {
         ...additional_fields,
-        source_id: false, // Cambiar a false en lugar de string
-        email: email // Agregar email explícitamente
+        source_id: false // Cambiar a false en lugar de string
       }
     };
 
@@ -322,12 +321,11 @@ Fecha: ${new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' })
     const leadData = {
       name: `Cotización ${customer.type} - ${customer.name}`,
       contact_name: customer.name,
-      email_from: customer.email,
+      email: customer.email, // Campo para el payload
       phone: customer.phone,
       description,
       additional_fields: {
-        source_id: false, // Cambiar a false en lugar de string
-        email: customer.email // Agregar email explícitamente
+        source_id: false // Cambiar a false en lugar de string
       }
     };
 

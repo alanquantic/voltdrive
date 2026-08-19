@@ -1,18 +1,36 @@
 // Vercel Serverless Function for Mailgun email sending
 // Expects env vars: MAILGUN_API_KEY, MAILGUN_DOMAIN, MAILGUN_FROM, MAILGUN_TO
 
+import { checkBotId } from 'botid/server';
+import { inspectSubmission } from '../lib/form-security.js';
+
+const successBody = { ok: true, message: 'Solicitud recibida' };
+
+function rejectSpam(res, reason, payload) {
+  console.warn(`[anti-spam] Descartado: ${reason}`, payload);
+  return res.status(200).json(successBody);
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ ok: false, error: 'Method Not Allowed' });
   }
   try {
-    const { customer = {}, configuration = {} } = req.body || {};
-    const required = ['name', 'email', 'phone', 'type', 'units', 'city', 'country'];
-    const missing = required.filter((k) => !String(customer[k] || '').trim());
-    if (missing.length) {
-      return res.status(400).json({ ok: false, error: `Faltan campos: ${missing.join(', ')}` });
+    try {
+      const verification = await checkBotId({ advancedOptions: { headers: req.headers } });
+      if (verification.isBot) return rejectSpam(res, 'BotID', req.body);
+    } catch (error) {
+      console.warn('[anti-spam] checkBotId no disponible:', error?.message || error);
     }
+
+    const spamReason = inspectSubmission(req.body, {
+      type: 'quote',
+      rateLimitScope: 'quote-email',
+    });
+    if (spamReason) return rejectSpam(res, spamReason, req.body);
+
+    const { customer = {}, configuration = {} } = req.body || {};
 
     const domain = process.env.MAILGUN_DOMAIN;
     const apiKey = process.env.MAILGUN_API_KEY;
@@ -95,11 +113,10 @@ export default async function handler(req, res) {
       console.error('Mailgun ack error', e);
     }
 
-    return res.status(200).json({ ok: true });
+    return res.status(200).json(successBody);
   } catch (err) {
     console.error('Quote error', err);
     return res.status(500).json({ ok: false, error: 'Error interno' });
   }
 }
-
 

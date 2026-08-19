@@ -1,7 +1,22 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { createRoot } from 'react-dom/client';
+import { initBotId } from 'botid/client/core';
 import Configurator from './components/Configurator.jsx';
+
+if (typeof window !== 'undefined') {
+  try {
+    initBotId({
+      protect: [
+        { path: '/api/quote', method: 'POST' },
+        { path: '/api/odoo/lead', method: 'POST' },
+        { path: '/api/odoo/quote-lead', method: 'POST' },
+      ],
+    });
+  } catch (error) {
+    console.warn('[anti-spam] BotID no pudo inicializarse:', error);
+  }
+}
 
 /**
  * Volt Drive — SPA unificada (About, FAQ, Aurora 72, Halcón 48)
@@ -28,7 +43,50 @@ function GlobalStyles() {
       .vd-aurora-a { animation: vd-auroraA 18s ease-in-out infinite; filter: blur(64px); }
       .vd-aurora-b { animation: vd-auroraB 22s ease-in-out infinite; filter: blur(64px); }
       .vd-grid { background-image: linear-gradient(to right, rgba(255,255,255,.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.08) 1px, transparent 1px); background-size:56px 56px; opacity:.06 }
+      .hp-field { position:absolute; left:-9999px; top:-9999px; width:1px; height:1px; overflow:hidden; }
     `}</style>
+  );
+}
+
+function useFormSecurity() {
+  const [formToken, setFormToken] = useState('');
+  const [companyWebsite, setCompanyWebsite] = useState('');
+
+  const refreshToken = () => {
+    fetch('/api/form-token', { cache: 'no-store' })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => data?.token && setFormToken(data.token))
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    refreshToken();
+    const interval = window.setInterval(refreshToken, 45 * 60 * 1000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const resetSecurity = () => {
+    setCompanyWebsite('');
+    refreshToken();
+  };
+
+  return { formToken, companyWebsite, setCompanyWebsite, resetSecurity };
+}
+
+function HoneypotField({ value, onChange }) {
+  return (
+    <div className="hp-field" aria-hidden="true">
+      <label htmlFor="company_website">Sitio web de la empresa</label>
+      <input
+        id="company_website"
+        name="company_website"
+        type="text"
+        tabIndex={-1}
+        autoComplete="off"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </div>
   );
 }
 
@@ -974,6 +1032,7 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
   const [open, setOpen] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
+  const { formToken, companyWebsite, setCompanyWebsite, resetSecurity } = useFormSecurity();
 
   const invalid = !form.name || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email||'') || !form.phone || !form.city;
 
@@ -1007,7 +1066,12 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
       const r = await fetch(endpoint, { 
         method:'POST', 
         headers:{'Content-Type':'application/json'}, 
-        body: JSON.stringify({ customer: form, configuration }) 
+        body: JSON.stringify({
+          customer: form,
+          configuration,
+          formToken,
+          company_website: companyWebsite,
+        })
       });
       
       if (!r.ok) {
@@ -1025,7 +1089,12 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
         const odooResponse = await fetch(odooEndpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ customer: form, configuration })
+          body: JSON.stringify({
+            customer: form,
+            configuration,
+            formToken,
+            company_website: companyWebsite,
+          })
         });
 
         console.log('📥 Respuesta de Odoo:', odooResponse.status, odooResponse.statusText);
@@ -1043,6 +1112,7 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
       }
       
       setOpen(false);
+      resetSecurity();
       showToast('Solicitud enviada. Te contactaremos pronto.');
     } catch(e){
       console.error('Error en cotización:', e);
@@ -1062,6 +1132,7 @@ function QuoteModalTrigger({ form, setForm, configuration, label='Solicitar coti
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="quote-title">
           <div className="absolute inset-0 bg-black/60" onClick={()=>!sending && setOpen(false)}></div>
           <div className="relative z-10 w-full max-w-3xl max-h-[92vh] overflow-y-auto rounded-3xl border border-white/10 bg-black/80 p-6 text-white backdrop-blur" tabIndex={-1}>
+            <HoneypotField value={companyWebsite} onChange={setCompanyWebsite}/>
             <h3 id="quote-title" className="text-xl font-semibold">Resumen y datos para cotización</h3>
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="rounded-2xl border border-white/10 p-4">
@@ -1467,6 +1538,7 @@ function HomePage() {
   const [contactForm, setContactForm] = useState({ name:'', email:'', phone:'', company:'', message:'' });
   const [sendingContact, setSendingContact] = useState(false);
   const [contactError, setContactError] = useState(null);
+  const { formToken, companyWebsite, setCompanyWebsite, resetSecurity } = useFormSecurity();
 
   async function submitContactForm(e) {
     e.preventDefault();
@@ -1486,8 +1558,12 @@ function HomePage() {
         contact_name: contactForm.name,
         email: contactForm.email,
         phone: contactForm.phone || '',
+        company: contactForm.company,
+        message: contactForm.message,
         description: `Empresa: ${contactForm.company || 'N/A'}\n\nMensaje:\n${contactForm.message}`,
-        source: 'Formulario Home'
+        source: 'Formulario Home',
+        formToken,
+        company_website: companyWebsite,
       };
       console.log('📦 Datos a enviar:', odooData);
       
@@ -1507,6 +1583,7 @@ function HomePage() {
         console.log('✅ Lead creado en Odoo:', odooData);
         showToast('Mensaje enviado. Te contactaremos pronto.');
         setContactForm({ name:'', email:'', phone:'', company:'', message:'' });
+        resetSecurity();
       } else {
         const errorText = await odooResponse.text();
         console.error('❌ Error creando lead en Odoo:', odooResponse.status, errorText);
@@ -1587,6 +1664,7 @@ function HomePage() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
             <form onSubmit={submitContactForm} className="grid grid-cols-1 gap-4">
+              <HoneypotField value={companyWebsite} onChange={setCompanyWebsite}/>
               <div>
                 <label className="block text-sm text-white/70">Nombre y Apellidos *</label>
                 <input 
@@ -1720,6 +1798,7 @@ function ModelPage({ m }) {
   const [contactForm, setContactForm] = useState({ name:'', email:'', phone:'', company:'', message:'' });
   const [sendingContact, setSendingContact] = useState(false);
   const [contactError, setContactError] = useState(null);
+  const { formToken, companyWebsite, setCompanyWebsite, resetSecurity } = useFormSecurity();
 
   async function submitContactForm(e) {
     e.preventDefault();
@@ -1739,8 +1818,13 @@ function ModelPage({ m }) {
         contact_name: contactForm.name,
         email: contactForm.email,
         phone: contactForm.phone || '',
+        company: contactForm.company,
+        message: contactForm.message,
+        model: m.name,
         description: `Modelo: ${m.name}\nEmpresa: ${contactForm.company || 'N/A'}\n\nMensaje:\n${contactForm.message}`,
-        source: `Formulario ${m.name}`
+        source: `Formulario ${m.name}`,
+        formToken,
+        company_website: companyWebsite,
       };
       
       const odooEndpoint = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app') ? '/api/odoo/lead' : '/api/odoo/lead';
@@ -1759,6 +1843,7 @@ function ModelPage({ m }) {
         console.log('✅ Lead creado en Odoo:', odooData);
         showToast('Mensaje enviado. Te contactaremos pronto.');
         setContactForm({ name:'', email:'', phone:'', company:'', message:'' });
+        resetSecurity();
       } else {
         const errorText = await odooResponse.text();
         console.error('❌ Error creando lead en Odoo:', odooResponse.status, errorText);
@@ -1910,6 +1995,7 @@ function ModelPage({ m }) {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
             <form onSubmit={submitContactForm} className="grid grid-cols-1 gap-4">
+              <HoneypotField value={companyWebsite} onChange={setCompanyWebsite}/>
               <div>
                 <label className="block text-sm text-white/70">Nombre y Apellidos *</label>
                 <input 
@@ -2390,5 +2476,3 @@ root.render(
     <App/>
   </ErrorBoundary>
 );
-
-

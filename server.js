@@ -3,6 +3,8 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fetch from 'node-fetch';
+import { checkBotId } from 'botid/server';
+import { inspectSubmission, issueFormToken } from './lib/form-security.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,18 +23,50 @@ if (!process.env.ODOO_API_KEY || !process.env.ODOO_PASSWORD) {
   console.log('   ODOO_COMPANY_ID:', process.env.ODOO_COMPANY_ID);
 }
 
+if (!process.env.FORM_SECRET) {
+  console.warn('⚠️  FORM_SECRET no configurado: el token de tiempo anti-spam no bloqueará envíos.');
+}
+
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static(publicDir));
+
+const successBody = { ok: true, message: 'Solicitud recibida' };
+
+function silentSuccess(res) {
+  return res.status(200).json(successBody);
+}
+
+function rejectSpam(res, reason, payload) {
+  console.warn(`[anti-spam] Descartado: ${reason}`, payload);
+  return silentSuccess(res);
+}
+
+async function isBotRequest(req) {
+  try {
+    const verification = await checkBotId({ advancedOptions: { headers: req.headers } });
+    return verification.isBot;
+  } catch (error) {
+    console.warn('[anti-spam] checkBotId no disponible:', error?.message || error);
+    return false;
+  }
+}
+
+app.get('/api/form-token', (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  return res.status(200).json({ token: issueFormToken() });
+});
 
 // Quote endpoint (Mailgun)
 app.post('/api/quote', async (req, res) => {
   try {
+    if (await isBotRequest(req)) return rejectSpam(res, 'BotID', req.body);
+    const spamReason = inspectSubmission(req.body, {
+      type: 'quote',
+      rateLimitScope: 'quote-email',
+    });
+    if (spamReason) return rejectSpam(res, spamReason, req.body);
+
     const { customer = {}, configuration = {} } = req.body || {};
-    const required = ['name','email','phone','type','units','city','country'];
-    const missing = required.filter((k) => !String(customer[k] || '').trim());
-    if (missing.length) {
-      return res.status(400).json({ ok: false, error: `Faltan campos: ${missing.join(', ')}` });
-    }
 
     const domain = process.env.MAILGUN_DOMAIN;
     const apiKey = process.env.MAILGUN_API_KEY;
@@ -87,7 +121,7 @@ app.post('/api/quote', async (req, res) => {
       return res.status(502).json({ ok: false, error: `Mailgun ${resp.status}` });
     }
 
-    return res.json({ ok: true });
+    return silentSuccess(res);
   } catch (err) {
     console.error('Quote error', err);
     return res.status(500).json({ ok: false, error: 'Error interno' });
@@ -224,34 +258,38 @@ async function createOdooLead(leadData) {
 
 // Endpoint para crear leads en Odoo
 app.post('/api/odoo/lead', async (req, res) => {
-  console.log('📥 Recibida solicitud para crear lead en Odoo:', req.body);
-  
   try {
+    if (await isBotRequest(req)) return rejectSpam(res, 'BotID', req.body);
+    const spamReason = inspectSubmission(req.body, {
+      type: 'contact',
+      rateLimitScope: 'contact-crm',
+    });
+    if (spamReason) return rejectSpam(res, spamReason, req.body);
+
+    console.log('📥 Recibida solicitud para crear lead en Odoo:', req.body);
     const { 
       name, 
       email, 
       phone, 
       contact_name, 
-      description, 
+      description,
+      company,
+      message,
+      model,
       source = 'Sitio Web',
       additional_fields = {} 
     } = req.body;
 
-    // Validación básica
-    if (!email || !contact_name) {
-      console.log('❌ Validación fallida: email o contact_name faltantes');
-      return res.status(400).json({ 
-        ok: false, 
-        error: 'Email y nombre de contacto son requeridos' 
-      });
-    }
+    const safeDescription = message
+      ? `${model ? `Modelo: ${model}\n` : ''}Empresa: ${company || 'N/A'}\n\nMensaje:\n${message}`
+      : description || '';
 
     const leadData = {
       name: name || `Lead de ${contact_name}`,
       contact_name,
       email: email, // Campo para el payload
       phone: phone || '',
-      description: description || '',
+      description: safeDescription,
       additional_fields: {
         ...additional_fields,
         source_id: false // Cambiar a false en lugar de string
@@ -262,11 +300,7 @@ app.post('/api/odoo/lead', async (req, res) => {
     const leadId = await createOdooLead(leadData);
     console.log('✅ Lead creado exitosamente en Odoo con ID:', leadId);
 
-    return res.json({ 
-      ok: true, 
-      lead_id: leadId,
-      message: 'Lead creado exitosamente en Odoo CRM'
-    });
+    return silentSuccess(res);
 
   } catch (error) {
     console.error('❌ Error en endpoint /api/odoo/lead:', error);
@@ -279,20 +313,16 @@ app.post('/api/odoo/lead', async (req, res) => {
 
 // Endpoint para crear leads desde el formulario de cotización
 app.post('/api/odoo/quote-lead', async (req, res) => {
-  console.log('📥 Recibida solicitud para crear lead de cotización en Odoo:', req.body);
-  
   try {
+    if (await isBotRequest(req)) return rejectSpam(res, 'BotID', req.body);
+    const spamReason = inspectSubmission(req.body, {
+      type: 'quote',
+      rateLimitScope: 'quote-crm',
+    });
+    if (spamReason) return rejectSpam(res, spamReason, req.body);
+
+    console.log('📥 Recibida solicitud para crear lead de cotización en Odoo:', req.body);
     const { customer = {}, configuration = {} } = req.body;
-    
-    // Validación
-    const required = ['name', 'email', 'phone'];
-    const missing = required.filter(k => !String(customer[k] || '').trim());
-    if (missing.length) {
-      return res.status(400).json({ 
-        ok: false, 
-        error: `Faltan campos: ${missing.join(', ')}` 
-      });
-    }
 
     const description = `
 Solicitud de cotización desde el configurador:
@@ -331,11 +361,7 @@ Fecha: ${new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' })
 
     const leadId = await createOdooLead(leadData);
 
-    return res.json({ 
-      ok: true, 
-      lead_id: leadId,
-      message: 'Lead de cotización creado exitosamente en Odoo CRM'
-    });
+    return silentSuccess(res);
 
   } catch (error) {
     console.error('Error en endpoint /api/odoo/quote-lead:', error);
@@ -363,5 +389,3 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Volt Drive SPA lista en http://localhost:${port}`);
 });
-
-

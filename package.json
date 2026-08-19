@@ -18,6 +18,7 @@
     "vercel-build": "npm run build"
   },
   "dependencies": {
+    "botid": "^1.5.11",
     "dotenv": "^17.2.1",
     "express": "^4.19.2",
     "node-fetch": "^3.3.2",
